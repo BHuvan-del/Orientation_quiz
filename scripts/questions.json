@@ -1,0 +1,42 @@
+[
+  {
+    "text": "Which company originally created and open-sourced React?",
+    "options": ["Google", "Meta (Facebook)", "Microsoft", "Amazon"],
+    "correctIndex": 1,
+    "timeLimitSeconds": 30
+  },
+  {
+    "text": "In computing systems, what does 'RAM' stand for?",
+    "options": [
+      "Random Access Memory",
+      "Readily Available Module",
+      "Real-time Automated Machine",
+      "Rotational Array Matrix"
+    ],
+    "correctIndex": 0,
+    "timeLimitSeconds": 30
+  },
+  {
+    "text": "Which protocol provides full-duplex, bidirectional communication in modern browsers?",
+    "options": ["HTTP/1.1", "WebSockets", "FTP", "SMTP"],
+    "correctIndex": 1,
+    "timeLimitSeconds": 30
+  },
+  {
+    "text": "What is the primary architectural purpose of Firestore server timestamps?",
+    "options": [
+      "Compress database network packets",
+      "Anchor synchronous countdowns across devices with clock skew",
+      "Generate random hash seeds",
+      "Optimize battery life on mobile devices"
+    ],
+    "correctIndex": 1,
+    "timeLimitSeconds": 30
+  },
+  {
+    "text": "What is the average time complexity of looking up an item in a balanced Hash Map?",
+    "options": ["O(n)", "O(log n)", "O(1)", "O(n log n)"],
+    "correctIndex": 2,
+    "timeLimitSeconds": 30
+  }
+]
