@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { Lock, ShieldAlert, KeyRound, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 const VALID_HOST_PASSCODES = [
-  'thapar@host2025',
-  'thapar2025',
-  'orientation2025',
-  'admin@thapar'
+  'thapar@host2026',
+  'thapar2026',
+  'orientation2026'
 ];
 
 export default function HostAuthGate({ onAuthenticated, expectedPasscode }) {
