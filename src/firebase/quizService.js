@@ -115,12 +115,35 @@ export function subscribeToPlayers(roomCode, onUpdate, onError) {
 }
 
 /**
- * Player joins the session with Name and Roll No
+ * Player joins the session with Thapar Email, Name and 10-digit Roll No
  */
-export async function joinSession(roomCode, nickname, rollNo) {
+export async function joinSession(roomCode, nicknameOrData, rollNoArg, emailArg, authProviderArg) {
   // 1. Ensure user is authenticated BEFORE any Firestore call
   const user = await ensureAuth();
   const playerId = user.uid;
+
+  let nickname = typeof nicknameOrData === 'object' ? nicknameOrData.nickname : nicknameOrData;
+  let rollNo = typeof nicknameOrData === 'object' ? nicknameOrData.rollNo : rollNoArg;
+  let email = typeof nicknameOrData === 'object' ? nicknameOrData.email : emailArg;
+  let authProvider = typeof nicknameOrData === 'object' ? (nicknameOrData.authProvider || 'thapar_email') : (authProviderArg || 'thapar_email');
+
+  const cleanRollNo = (rollNo || '').trim();
+  const cleanEmail = (email || '').trim().toLowerCase();
+  const cleanName = (nickname || '').trim();
+
+  // Validate 10-digit Roll Number
+  if (!/^\d{10}$/.test(cleanRollNo)) {
+    throw new Error('Roll Number must be exactly 10 numeric digits (e.g. 1022030123).');
+  }
+
+  // Validate Thapar University Email
+  if (!cleanEmail.endsWith('@thapar.edu') || !/^[a-zA-Z0-9._%+-]+@thapar\.edu$/i.test(cleanEmail)) {
+    throw new Error('Only official Thapar Institute email addresses (@thapar.edu) are accepted.');
+  }
+
+  if (!cleanName) {
+    throw new Error('Full Name is required.');
+  }
 
   const code = roomCode.toUpperCase().trim();
   const sessionRef = doc(db, 'sessions', code);
@@ -135,32 +158,43 @@ export async function joinSession(roomCode, nickname, rollNo) {
     throw new Error('This quiz session has already concluded.');
   }
 
-  // Check if rollNo is already taken in this room by another player
-  const cleanRollNo = rollNo.trim().toUpperCase();
+  // Duplicate checks in active room
   try {
     const playersCol = collection(db, 'sessions', code, 'players');
+
+    // 1. Check duplicate roll number
     const rollQuery = query(playersCol, where('rollNo', '==', cleanRollNo));
     const rollSnap = await getDocs(rollQuery);
-
     if (!rollSnap.empty) {
       const existing = rollSnap.docs[0];
       if (existing.id !== playerId) {
-        throw new Error(`Roll No "${rollNo}" has already joined this room. Please check your roll number.`);
+        throw new Error(`Roll Number "${cleanRollNo}" has already joined this session.`);
+      }
+    }
+
+    // 2. Check duplicate email
+    const emailQuery = query(playersCol, where('email', '==', cleanEmail));
+    const emailSnap = await getDocs(emailQuery);
+    if (!emailSnap.empty) {
+      const existing = emailSnap.docs[0];
+      if (existing.id !== playerId) {
+        throw new Error(`Thapar Email "${cleanEmail}" has already joined this session.`);
       }
     }
   } catch (err) {
-    if (err.message && err.message.includes('has already joined')) {
+    if (err.message && (err.message.includes('has already joined') || err.message.includes('Roll Number must'))) {
       throw err;
     }
-    // If index or query issue occurs, log and proceed with player write
-    console.warn('Roll number check warning:', err);
+    console.warn('Player duplicate check warning:', err);
   }
 
   const playerRef = doc(db, 'sessions', code, 'players', playerId);
 
   const playerData = {
-    nickname: nickname.trim(),
+    nickname: cleanName,
     rollNo: cleanRollNo,
+    email: cleanEmail,
+    authProvider,
     score: 0,
     joinedAt: serverTimestamp(),
     connectionStatus: 'active',
@@ -172,6 +206,7 @@ export async function joinSession(roomCode, nickname, rollNo) {
   await setDoc(playerRef, playerData, { merge: true });
   return { playerId, player: playerData };
 }
+
 
 /**
  * Host updates session status / advances quiz

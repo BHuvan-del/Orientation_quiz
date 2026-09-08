@@ -1,7 +1,15 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously } from 'firebase/auth';
 import { 
-  getFirestore,
+  getAuth, 
+  signInAnonymously, 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  signInWithRedirect, 
+  getRedirectResult,
+  signOut 
+} from 'firebase/auth';
+import { 
+  getFirestore, 
   initializeFirestore, 
   persistentLocalCache, 
   persistentMultipleTabManager 
@@ -19,6 +27,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
+const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({
+  hd: 'thapar.edu',
+  prompt: 'select_account'
+});
+
 // Initialize Firestore with multi-tab persistent cache for robustness and reconnection
 let db;
 try {
@@ -31,5 +45,16 @@ try {
   db = getFirestore(app);
 }
 
-export { app, auth, db, signInAnonymously };
+export { 
+  app, 
+  auth, 
+  db, 
+  googleProvider, 
+  signInAnonymously, 
+  signInWithPopup, 
+  signInWithRedirect, 
+  getRedirectResult,
+  signOut 
+};
+
 

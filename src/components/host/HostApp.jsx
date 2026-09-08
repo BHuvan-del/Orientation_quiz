@@ -10,7 +10,8 @@ import HostLobby from './HostLobby';
 import HostQuestion from './HostQuestion';
 import HostResults from './HostResults';
 import HostLeaderboard from './HostLeaderboard';
-import { RotateCcw, PlusCircle, Terminal, Radio } from 'lucide-react';
+import HostAuthGate from './HostAuthGate';
+import { RotateCcw, PlusCircle, Terminal, Radio, Lock } from 'lucide-react';
 
 export default function HostApp() {
   const getInitialRoomCode = () => {
@@ -19,6 +20,9 @@ export default function HostApp() {
     return match ? match[1].toUpperCase() : localStorage.getItem('activeHostRoomCode') || null;
   };
 
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    () => sessionStorage.getItem('host_auth_unlocked') === 'true'
+  );
   const [roomCode, setRoomCode] = useState(getInitialRoomCode);
   const [session, setSession] = useState(null);
   const [questions, setQuestions] = useState([]);
@@ -26,6 +30,12 @@ export default function HostApp() {
   const [loading, setLoading] = useState(!!roomCode);
   const [error, setError] = useState(null);
   const [resetting, setResetting] = useState(false);
+
+  const handleLockConsole = () => {
+    sessionStorage.removeItem('host_auth_unlocked');
+    setIsAuthenticated(false);
+  };
+
 
   const handleQuizCreated = (newCode) => {
     localStorage.setItem('activeHostRoomCode', newCode);
@@ -108,6 +118,15 @@ export default function HostApp() {
     };
   }, [roomCode]);
 
+  if (!isAuthenticated) {
+    return (
+      <HostAuthGate 
+        onAuthenticated={() => setIsAuthenticated(true)} 
+        expectedPasscode={session?.hostPasscode} 
+      />
+    );
+  }
+
   if (!roomCode || !session) {
     if (loading) {
       return (
@@ -119,6 +138,17 @@ export default function HostApp() {
     }
     return (
       <div className="min-h-screen bg-zinc-950 text-zinc-100 py-8 px-4 font-sans">
+        {/* Subheader with Lock option */}
+        <div className="max-w-4xl mx-auto mb-4 flex justify-end">
+          <button
+            onClick={handleLockConsole}
+            className="px-3 py-1 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-white text-xs font-mono flex items-center gap-1.5 transition"
+            title="Lock Console"
+          >
+            <Lock className="w-3.5 h-3.5 text-amber-400" />
+            <span>Lock Console</span>
+          </button>
+        </div>
         {error && (
           <div className="max-w-md mx-auto mb-6 p-3 rounded-lg bg-zinc-900 border border-red-500/30 text-red-400 text-xs font-mono flex items-center justify-between">
             <span>[ERR] {error}</span>
@@ -134,6 +164,7 @@ export default function HostApp() {
       </div>
     );
   }
+
 
   const currentQ = questions[session.currentQuestionIndex || 0] || {
     text: 'Loading question...',
@@ -186,8 +217,18 @@ export default function HostApp() {
             <PlusCircle className="w-3.5 h-3.5 text-cyan-400" />
             <span className="hidden sm:inline">New Quiz</span>
           </button>
+
+          <button
+            onClick={handleLockConsole}
+            className="px-2.5 py-1.5 rounded-md bg-zinc-800/80 hover:bg-zinc-700 border border-zinc-700/80 text-amber-400 hover:text-amber-300 transition flex items-center gap-1.5 text-xs font-mono font-medium"
+            title="Lock Console"
+          >
+            <Lock className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Lock</span>
+          </button>
         </div>
       </header>
+
 
       {/* Main View Area */}
       <main className="flex-1 flex flex-col">

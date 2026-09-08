@@ -40,14 +40,17 @@ async function simulatePlayer(index) {
   const cred = await signInAnonymously(auth);
   const uid = cred.user.uid;
 
-  const nickname = `Player_${String(index + 1).padStart(2, '0')}`;
-  const rollNo = `21CS${String(index + 1).padStart(3, '0')}`;
+  const nickname = `Student_${String(index + 1).padStart(2, '0')}`;
+  const rollNo = `102203${String(index + 1).padStart(4, '0')}`;
+  const email = `student${String(index + 1).padStart(2, '0')}@thapar.edu`;
 
   // Join session
   const playerRef = doc(db, 'sessions', roomCode, 'players', uid);
   await setDoc(playerRef, {
     nickname,
     rollNo,
+    email,
+    authProvider: 'simulated_thapar',
     score: 0,
     joinedAt: serverTimestamp(),
     connectionStatus: 'active',
@@ -56,8 +59,9 @@ async function simulatePlayer(index) {
     lastPoints: 0
   }, { merge: true });
 
-  return { uid, nickname, rollNo, db, app };
+  return { uid, nickname, rollNo, email, db, app };
 }
+
 
 async function run() {
   try {
