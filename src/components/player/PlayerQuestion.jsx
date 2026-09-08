@@ -105,13 +105,23 @@ export default function PlayerQuestion({
       </div>
 
       {/* Question Card */}
-      <div className="my-3 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+      <div className="my-2.5 bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm">
         <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block mb-1">
           Statement
         </span>
         <h1 className="text-base sm:text-lg font-semibold text-slate-900 leading-snug">
           {question.text}
         </h1>
+
+        {question.imageUrl && (
+          <div className="mt-2.5 flex justify-center">
+            <img 
+              src={question.imageUrl} 
+              alt="Question illustration" 
+              className="max-h-40 sm:max-h-52 w-auto rounded-xl object-contain border border-slate-100 bg-slate-50"
+            />
+          </div>
+        )}
       </div>
 
       {/* Feedback Banner */}

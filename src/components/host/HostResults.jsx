@@ -46,8 +46,19 @@ export default function HostResults({ session, question, players = [] }) {
         </div>
       </div>
 
+      {/* Optional Question Image */}
+      {question.imageUrl && (
+        <div className="flex justify-center mt-4">
+          <img 
+            src={question.imageUrl} 
+            alt="Question illustration" 
+            className="max-h-48 w-auto rounded-xl object-contain border border-slate-200 shadow-xs bg-slate-50"
+          />
+        </div>
+      )}
+
       {/* Answer Distribution Cards */}
-      <div className="my-auto py-8 max-w-4xl mx-auto w-full space-y-3">
+      <div className="my-auto py-6 max-w-4xl mx-auto w-full space-y-3">
         {question.options.map((opt, idx) => {
           const count = distribution[idx];
           const pct = totalResponses > 0 ? Math.round((count / totalResponses) * 100) : 0;

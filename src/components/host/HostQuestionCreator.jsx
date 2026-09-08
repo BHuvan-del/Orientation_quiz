@@ -1,16 +1,52 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Play, Clock, Check, ExternalLink } from 'lucide-react';
+import { Plus, Trash2, Play, Clock, Check, ExternalLink, Image as ImageIcon, Upload, X } from 'lucide-react';
 import { createQuizSession, getSavedHostRooms, deleteQuizSession } from '../../firebase/quizService.js';
+
+// Client-side image compressor: downsizes photos to max 800px width/height and ~50-80KB JPEG
+function compressImage(file, maxWidth = 800, quality = 0.75) {
+  return new Promise((resolve, reject) => {
+    if (!file || !file.type.startsWith('image/')) {
+      return reject(new Error('Please select a valid image file.'));
+    }
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (e) => {
+      const img = new Image();
+      img.src = e.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        if (width > height && width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        } else if (height > maxWidth) {
+          width = Math.round((width * maxWidth) / height);
+          height = maxWidth;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => reject(new Error('Failed to load image file.'));
+    };
+    reader.onerror = () => reject(new Error('Failed to read file.'));
+  });
+}
 
 const SAMPLE_QUESTIONS = [
   {
     text: "Which company originally created and open-sourced React?",
+    imageUrl: null,
     options: ["Google", "Meta (Facebook)", "Microsoft", "Amazon"],
     correctIndex: 1,
     timeLimitSeconds: 30
   },
   {
     text: "In computing systems, what does 'RAM' stand for?",
+    imageUrl: null,
     options: [
       "Random Access Memory",
       "Readily Available Module",
@@ -22,6 +58,7 @@ const SAMPLE_QUESTIONS = [
   },
   {
     text: "Which protocol provides full-duplex, bidirectional communication in modern browsers?",
+    imageUrl: null,
     options: ["HTTP/1.1", "WebSockets", "FTP", "SMTP"],
     correctIndex: 1,
     timeLimitSeconds: 30
@@ -45,6 +82,7 @@ export default function HostQuestionCreator({ onQuizCreated, onDeleteRoom }) {
       ...questions,
       {
         text: '',
+        imageUrl: null,
         options: ['', '', '', ''],
         correctIndex: 0,
         timeLimitSeconds: 30
@@ -64,6 +102,26 @@ export default function HostQuestionCreator({ onQuizCreated, onDeleteRoom }) {
     const updated = [...questions];
     updated[index].text = text;
     setQuestions(updated);
+  };
+
+  const updateQuestionImage = (index, imageUrl) => {
+    const updated = [...questions];
+    updated[index].imageUrl = imageUrl || null;
+    setQuestions(updated);
+  };
+
+  const handleImageUpload = async (index, e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const dataUrl = await compressImage(file, 800, 0.75);
+      updateQuestionImage(index, dataUrl);
+    } catch (err) {
+      console.error(err);
+      alert(err.message || 'Error processing image');
+    } finally {
+      e.target.value = '';
+    }
   };
 
   const updateOptionText = (qIndex, optIndex, text) => {
@@ -348,8 +406,67 @@ export default function HostQuestionCreator({ onQuizCreated, onDeleteRoom }) {
                 value={q.text}
                 onChange={(e) => updateQuestionText(qIndex, e.target.value)}
                 placeholder="Enter question statement..."
-                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm font-medium mb-3 focus:border-[#0070ba] focus:ring-1 focus:ring-[#0070ba] focus:outline-none"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm font-medium mb-2.5 focus:border-[#0070ba] focus:ring-1 focus:ring-[#0070ba] focus:outline-none"
               />
+
+              {/* Question Image (Optional) */}
+              <div className="mb-3">
+                {q.imageUrl ? (
+                  <div className="relative inline-flex flex-col border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs group">
+                    <img 
+                      src={q.imageUrl} 
+                      alt={`Question #${qIndex + 1} illustration`} 
+                      className="max-h-36 max-w-xs object-contain rounded-t-xl p-1 bg-slate-50"
+                    />
+                    <div className="px-2.5 py-1.5 bg-slate-50 border-t border-slate-100 text-[11px] text-slate-600 font-medium flex items-center justify-between gap-3">
+                      <span className="flex items-center gap-1 text-emerald-700 font-semibold">
+                        <ImageIcon className="w-3 h-3 text-emerald-600" /> Image attached
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => updateQuestionImage(qIndex, null)}
+                        className="text-xs text-red-600 hover:text-red-700 font-semibold flex items-center gap-0.5"
+                      >
+                        <X className="w-3 h-3" /> Remove
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition shadow-2xs">
+                      <Upload className="w-3.5 h-3.5 text-[#0070ba]" />
+                      <span>Upload Image</span>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        className="hidden" 
+                        onChange={(e) => handleImageUpload(qIndex, e)} 
+                      />
+                    </label>
+
+                    <div className="flex-1 min-w-[220px]">
+                      <input
+                        type="url"
+                        placeholder="Or paste image URL (https://...)"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (e.target.value.trim()) {
+                              updateQuestionImage(qIndex, e.target.value.trim());
+                            }
+                          }
+                        }}
+                        onBlur={(e) => {
+                          if (e.target.value.trim()) {
+                            updateQuestionImage(qIndex, e.target.value.trim());
+                          }
+                        }}
+                        className="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs text-slate-700 placeholder:text-slate-400 focus:border-[#0070ba] focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* 4 Choices */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">

@@ -72,11 +72,21 @@ export default function HostQuestion({ session, question, players = [] }) {
       </div>
 
       {/* Main Question Display */}
-      <div className="my-auto py-8 max-w-4xl mx-auto w-full text-center">
-        <div className="bg-white border border-slate-200 rounded-2xl p-8 md:p-12 shadow-sm">
-          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 leading-relaxed">
+      <div className="my-auto py-4 sm:py-6 max-w-4xl mx-auto w-full text-center">
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm flex flex-col items-center">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 leading-relaxed">
             {question.text}
           </h1>
+
+          {question.imageUrl && (
+            <div className="mt-5 max-w-lg w-full flex justify-center">
+              <img 
+                src={question.imageUrl} 
+                alt="Question illustration" 
+                className="max-h-56 sm:max-h-72 w-auto rounded-xl object-contain border border-slate-200 shadow-sm bg-slate-50"
+              />
+            </div>
+          )}
         </div>
       </div>
 

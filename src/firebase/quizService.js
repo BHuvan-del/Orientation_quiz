@@ -66,9 +66,10 @@ export async function createQuizSession(title, questions) {
     batch.set(qRef, {
       order: idx,
       text: q.text,
+      imageUrl: q.imageUrl || null,
       options: q.options,
       correctIndex: q.correctIndex,
-      timeLimitSeconds: q.timeLimitSeconds || 20,
+      timeLimitSeconds: q.timeLimitSeconds || 30,
     });
   });
 
