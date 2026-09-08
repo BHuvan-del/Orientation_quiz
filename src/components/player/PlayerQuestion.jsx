@@ -137,6 +137,7 @@ export default function PlayerQuestion({
         {question.options.map((opt, i) => {
           const isChosen = selectedOption === i;
           const isDisabled = hasSubmitted || submitting || isTimeUp;
+          const optImg = question.optionImages?.[i];
 
           return (
             <button
@@ -144,7 +145,7 @@ export default function PlayerQuestion({
               type="button"
               onClick={() => handleSelect(i)}
               disabled={isDisabled}
-              className={`w-full min-h-[72px] p-3.5 rounded-xl border text-left flex items-center gap-3 transition-all select-none ${
+              className={`w-full min-h-[72px] p-3 rounded-xl border text-left flex items-center gap-3 transition-all select-none ${
                 isChosen
                   ? 'border-[#0070ba] bg-blue-50/70 ring-2 ring-[#0070ba]/30 shadow-xs'
                   : isDisabled && selectedOption !== null
@@ -159,9 +160,20 @@ export default function PlayerQuestion({
               }`}>
                 {CHOICE_LABELS[i]}
               </div>
-              <div className="text-sm font-medium text-slate-800 leading-snug break-words">
-                {opt}
-              </div>
+
+              {optImg && (
+                <img 
+                  src={optImg} 
+                  alt={`Option ${CHOICE_LABELS[i]}`} 
+                  className="h-12 sm:h-14 w-auto max-w-[70px] sm:max-w-[80px] rounded object-contain border border-slate-200 bg-white p-0.5 shrink-0"
+                />
+              )}
+
+              {opt && (
+                <div className="text-sm font-medium text-slate-800 leading-snug break-words">
+                  {opt}
+                </div>
+              )}
             </button>
           );
         })}

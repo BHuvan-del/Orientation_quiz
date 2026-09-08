@@ -90,6 +90,14 @@ export default function HostResults({ session, question, players = [] }) {
                     {label}
                   </span>
 
+                  {question.optionImages?.[idx] && (
+                    <img 
+                      src={question.optionImages[idx]} 
+                      alt={`Option ${label}`} 
+                      className="h-12 w-auto max-w-[70px] rounded object-contain border border-slate-200 bg-white p-0.5 shrink-0"
+                    />
+                  )}
+
                   <div>
                     <div className="text-base font-bold text-slate-900 flex items-center gap-2">
                       {opt}

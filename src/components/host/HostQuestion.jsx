@@ -94,17 +94,30 @@ export default function HostQuestion({ session, question, players = [] }) {
       <div className="max-w-5xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-3.5 my-4">
         {question.options.map((opt, i) => {
           const style = SUBTLE_OPTIONS[i % SUBTLE_OPTIONS.length];
+          const optImg = question.optionImages?.[i];
+
           return (
             <div
               key={i}
-              className={`rounded-xl p-5 border flex items-center gap-4 transition shadow-xs ${style.border}`}
+              className={`rounded-xl p-4 sm:p-5 border flex items-center gap-4 transition shadow-xs ${style.border}`}
             >
               <span className={`w-8 h-8 rounded-lg font-bold text-xs flex items-center justify-center shrink-0 shadow-xs ${style.badge}`}>
                 {style.label}
               </span>
-              <div className="text-lg font-semibold text-slate-900 leading-snug">
-                {opt}
-              </div>
+
+              {optImg && (
+                <img 
+                  src={optImg} 
+                  alt={`Option ${style.label}`} 
+                  className="max-h-20 sm:max-h-24 max-w-[120px] rounded-lg object-contain border border-slate-200 bg-white p-1 shrink-0"
+                />
+              )}
+
+              {opt && (
+                <div className="text-base sm:text-lg font-semibold text-slate-900 leading-snug">
+                  {opt}
+                </div>
+              )}
             </div>
           );
         })}

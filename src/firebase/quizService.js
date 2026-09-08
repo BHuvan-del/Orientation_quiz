@@ -68,6 +68,7 @@ export async function createQuizSession(title, questions) {
       text: q.text,
       imageUrl: q.imageUrl || null,
       options: q.options,
+      optionImages: q.optionImages || [null, null, null, null],
       correctIndex: q.correctIndex,
       timeLimitSeconds: q.timeLimitSeconds || 30,
     });

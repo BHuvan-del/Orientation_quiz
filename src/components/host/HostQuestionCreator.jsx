@@ -41,6 +41,7 @@ const SAMPLE_QUESTIONS = [
     text: "Which company originally created and open-sourced React?",
     imageUrl: null,
     options: ["Google", "Meta (Facebook)", "Microsoft", "Amazon"],
+    optionImages: [null, null, null, null],
     correctIndex: 1,
     timeLimitSeconds: 30
   },
@@ -53,6 +54,7 @@ const SAMPLE_QUESTIONS = [
       "Real-time Automated Machine",
       "Rotational Array Matrix"
     ],
+    optionImages: [null, null, null, null],
     correctIndex: 0,
     timeLimitSeconds: 30
   },
@@ -60,6 +62,7 @@ const SAMPLE_QUESTIONS = [
     text: "Which protocol provides full-duplex, bidirectional communication in modern browsers?",
     imageUrl: null,
     options: ["HTTP/1.1", "WebSockets", "FTP", "SMTP"],
+    optionImages: [null, null, null, null],
     correctIndex: 1,
     timeLimitSeconds: 30
   }
@@ -84,6 +87,7 @@ export default function HostQuestionCreator({ onQuizCreated, onDeleteRoom }) {
         text: '',
         imageUrl: null,
         options: ['', '', '', ''],
+        optionImages: [null, null, null, null],
         correctIndex: 0,
         timeLimitSeconds: 30
       }
@@ -130,6 +134,31 @@ export default function HostQuestionCreator({ onQuizCreated, onDeleteRoom }) {
     setQuestions(updated);
   };
 
+  const updateOptionImage = (qIndex, optIndex, imageUrl) => {
+    const updated = [...questions];
+    if (!updated[qIndex].optionImages) {
+      updated[qIndex].optionImages = [null, null, null, null];
+    }
+    const newImgs = [...updated[qIndex].optionImages];
+    newImgs[optIndex] = imageUrl || null;
+    updated[qIndex].optionImages = newImgs;
+    setQuestions(updated);
+  };
+
+  const handleOptionImageUpload = async (qIndex, optIndex, e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const dataUrl = await compressImage(file, 500, 0.7);
+      updateOptionImage(qIndex, optIndex, dataUrl);
+    } catch (err) {
+      console.error(err);
+      alert(err.message || 'Error processing option image');
+    } finally {
+      e.target.value = '';
+    }
+  };
+
   const setCorrectIndex = (qIndex, optIndex) => {
     const updated = [...questions];
     updated[qIndex].correctIndex = optIndex;
@@ -154,8 +183,10 @@ export default function HostQuestionCreator({ onQuizCreated, onDeleteRoom }) {
         return;
       }
       for (let j = 0; j < 4; j++) {
-        if (!q.options[j].trim()) {
-          setError(`Question #${i + 1} option [${String.fromCharCode(65 + j)}] is blank.`);
+        const hasText = !!(q.options[j] && q.options[j].trim());
+        const hasImage = !!(q.optionImages && q.optionImages[j]);
+        if (!hasText && !hasImage) {
+          setError(`Question #${i + 1} option [${String.fromCharCode(65 + j)}] requires either text or an image.`);
           return;
         }
       }
@@ -473,36 +504,79 @@ export default function HostQuestionCreator({ onQuizCreated, onDeleteRoom }) {
                 {q.options.map((opt, optIndex) => {
                   const isCorrect = q.correctIndex === optIndex;
                   const label = String.fromCharCode(65 + optIndex);
+                  const optImg = q.optionImages?.[optIndex];
 
                   return (
                     <div 
                       key={optIndex}
-                      className={`flex items-center gap-2.5 p-2 rounded-lg border transition ${
+                      className={`flex flex-col gap-2 p-2.5 rounded-xl border transition ${
                         isCorrect 
-                          ? 'border-emerald-500 bg-emerald-50/50' 
-                          : 'border-slate-200 bg-white'
+                          ? 'border-emerald-500 bg-emerald-50/40 ring-1 ring-emerald-400' 
+                          : 'border-slate-200 bg-white shadow-2xs'
                       }`}
                     >
-                      <button
-                        type="button"
-                        onClick={() => setCorrectIndex(qIndex, optIndex)}
-                        className={`w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center transition shrink-0 ${
-                          isCorrect 
-                            ? 'bg-emerald-600 text-white' 
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        }`}
-                        title="Click to mark as correct answer"
-                      >
-                        {isCorrect ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : label}
-                      </button>
+                      {/* Top row: Indicator + Text + Image Upload Icon */}
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setCorrectIndex(qIndex, optIndex)}
+                          className={`w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center transition shrink-0 ${
+                            isCorrect 
+                              ? 'bg-emerald-600 text-white shadow-xs' 
+                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          }`}
+                          title="Click to mark as correct answer"
+                        >
+                          {isCorrect ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : label}
+                        </button>
 
-                      <input
-                        type="text"
-                        value={opt}
-                        onChange={(e) => updateOptionText(qIndex, optIndex, e.target.value)}
-                        placeholder={`Option ${label}`}
-                        className="w-full bg-transparent text-xs text-slate-800 focus:outline-none font-medium"
-                      />
+                        <input
+                          type="text"
+                          value={opt}
+                          onChange={(e) => updateOptionText(qIndex, optIndex, e.target.value)}
+                          placeholder={`Option ${label} text${optImg ? ' (optional)' : ''}`}
+                          className="flex-1 bg-transparent text-xs text-slate-800 focus:outline-none font-medium min-w-0"
+                        />
+
+                        {/* Option Image Upload button */}
+                        <label 
+                          className={`p-1.5 rounded-lg border cursor-pointer transition shrink-0 flex items-center gap-1 ${
+                            optImg
+                              ? 'bg-blue-50 border-blue-200 text-[#0070ba]'
+                              : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'
+                          }`}
+                          title="Attach image to this option"
+                        >
+                          <ImageIcon className="w-3.5 h-3.5" />
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            className="hidden" 
+                            onChange={(e) => handleOptionImageUpload(qIndex, optIndex, e)} 
+                          />
+                        </label>
+                      </div>
+
+                      {/* Option Image Preview (if attached) */}
+                      {optImg && (
+                        <div className="relative inline-flex items-center gap-2 p-1.5 rounded-lg bg-slate-50 border border-slate-200">
+                          <img 
+                            src={optImg} 
+                            alt={`Option ${label}`} 
+                            className="h-14 w-auto max-w-[100px] object-contain rounded border border-slate-200 bg-white"
+                          />
+                          <div className="flex flex-col gap-0.5 text-[10px]">
+                            <span className="font-semibold text-slate-700">Image Attached</span>
+                            <button
+                              type="button"
+                              onClick={() => updateOptionImage(qIndex, optIndex, null)}
+                              className="text-red-600 hover:text-red-700 font-semibold flex items-center gap-0.5 text-[11px]"
+                            >
+                              <X className="w-3 h-3" /> Remove
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
