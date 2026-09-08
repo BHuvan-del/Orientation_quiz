@@ -18,7 +18,7 @@ export default function HostAuthGate({ onAuthenticated, expectedPasscode }) {
     setError(null);
 
     const entered = passcode.trim();
-    const matchesMaster = VALID_HOST_PASSCODES.includes(entered.toLowerCase()) || entered === 'thapar@host2025';
+    const matchesMaster = VALID_HOST_PASSCODES.includes(entered.toLowerCase()) || VALID_HOST_PASSCODES.includes(entered);
     const matchesSession = expectedPasscode && entered === expectedPasscode;
 
     if (matchesMaster || matchesSession) {
