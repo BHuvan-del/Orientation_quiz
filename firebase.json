@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "livequiz-978ee",
     "public": "dist",
     "ignore": [
       "firebase.json",
