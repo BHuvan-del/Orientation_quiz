@@ -104,10 +104,6 @@ export default function HostAuthGate({ onAuthenticated, expectedPasscode }) {
           </div>
         </div>
 
-        <p className="text-center text-xs text-slate-400 mt-4">
-          Default Master Key: <span className="font-mono text-slate-600 font-semibold">thapar@host2025</span>
-        </p>
-
       </div>
     </div>
   );

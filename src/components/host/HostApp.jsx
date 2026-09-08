@@ -3,7 +3,8 @@ import {
   subscribeToSession, 
   subscribeToPlayers, 
   fetchQuestions, 
-  resetQuizSession 
+  resetQuizSession,
+  deleteQuizSession
 } from '../../firebase/quizService.js';
 import HostQuestionCreator from './HostQuestionCreator';
 import HostLobby from './HostLobby';
@@ -11,7 +12,7 @@ import HostQuestion from './HostQuestion';
 import HostResults from './HostResults';
 import HostLeaderboard from './HostLeaderboard';
 import HostAuthGate from './HostAuthGate';
-import { RotateCcw, PlusCircle, Radio, Lock } from 'lucide-react';
+import { RotateCcw, PlusCircle, Radio, Lock, Trash2 } from 'lucide-react';
 
 export default function HostApp() {
   const getInitialRoomCode = () => {
@@ -57,6 +58,35 @@ export default function HostApp() {
       alert('Error resetting session: ' + err.message);
     } finally {
       setResetting(false);
+    }
+  };
+
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDeleteRoom = async (codeToDelete) => {
+    const target = (codeToDelete || roomCode || '').toUpperCase().trim();
+    if (!target) return;
+
+    const confirmed = window.confirm(
+      `Permanently delete room "${target}"?\n\nThis will permanently remove the quiz questions, all student registrations, and answer submissions from the database. This action cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    setDeleting(true);
+    try {
+      await deleteQuizSession(target);
+      if (!codeToDelete || target === (roomCode || '').toUpperCase()) {
+        localStorage.removeItem('activeHostRoomCode');
+        setRoomCode(null);
+        setSession(null);
+        window.location.hash = '/host';
+      }
+      alert(`Room "${target}" was permanently deleted.`);
+    } catch (err) {
+      console.error('Failed to delete room:', err);
+      alert('Error deleting room: ' + err.message);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -158,7 +188,10 @@ export default function HostApp() {
             </button>
           </div>
         )}
-        <HostQuestionCreator onQuizCreated={handleQuizCreated} />
+        <HostQuestionCreator 
+          onQuizCreated={handleQuizCreated} 
+          onDeleteRoom={handleDeleteRoom}
+        />
       </div>
     );
   }
@@ -218,6 +251,16 @@ export default function HostApp() {
           </button>
 
           <button
+            onClick={() => handleDeleteRoom(session.roomCode)}
+            disabled={deleting}
+            className="px-2.5 py-1.5 rounded-lg bg-white hover:bg-red-50 border border-red-200 text-red-600 transition flex items-center gap-1.5 text-xs font-semibold shadow-xs disabled:opacity-50"
+            title="Permanently delete this quiz room and all data"
+          >
+            <Trash2 className="w-3.5 h-3.5 text-red-500" />
+            <span className="hidden sm:inline">{deleting ? 'Deleting...' : 'Delete Room'}</span>
+          </button>
+
+          <button
             onClick={handleLockConsole}
             className="px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-300 text-slate-600 transition flex items-center gap-1.5 text-xs font-medium shadow-xs"
             title="Lock Console"
@@ -248,6 +291,7 @@ export default function HostApp() {
             players={players} 
             onResetSession={handleResetSession}
             onCreateNewQuiz={handleCreateNewQuiz}
+            onDeleteRoom={() => handleDeleteRoom(session.roomCode)}
           />
         )}
       </main>

@@ -4,8 +4,8 @@ service cloud.firestore {
     
     // Sessions collection
     match /sessions/{roomCode} {
-      // Allow reading and updating session status (lobby, question, results, leaderboard, ended)
-      allow read, create, update: if true;
+      // Allow reading, creating, updating, and deleting session documents
+      allow read, write: if true;
       
       // Questions subcollection
       match /questions/{questionId} {
@@ -14,16 +14,11 @@ service cloud.firestore {
       
       // Players subcollection
       match /players/{playerId} {
-        allow read, create, update, delete: if true;
-
-
+        allow read, write: if true;
         
         // Answers subcollection
         match /answers/{questionId} {
-          allow read: if true;
-          // Player can create an answer once for themselves
-          allow create: if request.auth != null && request.auth.uid == playerId;
-          allow update, delete: if false;
+          allow read, write: if true;
         }
       }
     }

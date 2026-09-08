@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Trophy, ArrowRight, Flag, RotateCcw, PlusCircle, Loader2 } from 'lucide-react';
+import { Trophy, ArrowRight, Flag, RotateCcw, PlusCircle, Loader2, Trash2 } from 'lucide-react';
 import { startQuestion, updateSessionStatus, resetQuizSession } from '../../firebase/quizService.js';
 
 export default function HostLeaderboard({ 
   session, 
   players = [], 
   onResetSession, 
-  onCreateNewQuiz 
+  onCreateNewQuiz,
+  onDeleteRoom
 }) {
   const currentIndex = session.currentQuestionIndex || 0;
   const isFinal = (currentIndex + 1 >= (session.totalQuestions || 0)) || session.status === 'ended';
@@ -240,6 +241,17 @@ export default function HostLeaderboard({
                 <PlusCircle className="w-3.5 h-3.5" />
                 Create New Quiz
               </button>
+
+              {onDeleteRoom && (
+                <button
+                  onClick={onDeleteRoom}
+                  className="px-4 py-2.5 bg-white hover:bg-red-50 text-red-600 text-xs font-semibold rounded-lg border border-red-200 transition flex items-center gap-1.5 shadow-xs"
+                  title="Permanently delete this quiz room and all data"
+                >
+                  <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                  Delete Room
+                </button>
+              )}
             </>
           ) : (
             <>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Play, Clock, Check } from 'lucide-react';
-import { createQuizSession } from '../../firebase/quizService.js';
+import { Plus, Trash2, Play, Clock, Check, ExternalLink } from 'lucide-react';
+import { createQuizSession, getSavedHostRooms, deleteQuizSession } from '../../firebase/quizService.js';
 
 const SAMPLE_QUESTIONS = [
   {
@@ -28,11 +28,17 @@ const SAMPLE_QUESTIONS = [
   }
 ];
 
-export default function HostQuestionCreator({ onQuizCreated }) {
+export default function HostQuestionCreator({ onQuizCreated, onDeleteRoom }) {
   const [title, setTitle] = useState('Tech Stack & Systems Challenge');
   const [questions, setQuestions] = useState(SAMPLE_QUESTIONS);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Saved / Previous Rooms Management State
+  const [savedRooms, setSavedRooms] = useState(() => getSavedHostRooms());
+  const [customRoomToDelete, setCustomRoomToDelete] = useState('');
+  const [deletingRoomCode, setDeletingRoomCode] = useState(null);
+  const [deleteMessage, setDeleteMessage] = useState(null);
 
   const addQuestion = () => {
     setQuestions([
@@ -109,8 +115,140 @@ export default function HostQuestionCreator({ onQuizCreated }) {
     }
   };
 
+  const handleDeleteSavedRoom = async (code) => {
+    const cleanCode = (code || '').toUpperCase().trim();
+    if (!cleanCode) return;
+
+    const confirmed = window.confirm(
+      `Permanently delete room "${cleanCode}"?\n\nThis will remove the quiz session, questions, participant registrations, and scores from Firebase. This cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    setDeletingRoomCode(cleanCode);
+    setDeleteMessage(null);
+    try {
+      await deleteQuizSession(cleanCode);
+      setSavedRooms(getSavedHostRooms());
+      setDeleteMessage(`Room "${cleanCode}" was successfully deleted from the database.`);
+      if (onDeleteRoom) {
+        // notify parent
+      }
+    } catch (err) {
+      console.error('Error deleting room:', err);
+      alert('Failed to delete room: ' + err.message);
+    } finally {
+      setDeletingRoomCode(null);
+    }
+  };
+
+  const handleCustomDelete = async (e) => {
+    e.preventDefault();
+    const cleanCode = customRoomToDelete.toUpperCase().trim();
+    if (!cleanCode) return;
+    await handleDeleteSavedRoom(cleanCode);
+    setCustomRoomToDelete('');
+  };
+
   return (
-    <div className="max-w-4xl mx-auto py-6 px-4 font-sans">
+    <div className="max-w-4xl mx-auto py-6 px-4 font-sans space-y-6">
+      
+      {/* Manage / Delete Previously Created Rooms */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
+          <div>
+            <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <span>Previously Created Rooms</span>
+              <span className="text-[10px] font-semibold bg-blue-50 text-[#0070ba] px-2 py-0.5 rounded-full border border-blue-100">
+                {savedRooms.length} {savedRooms.length === 1 ? 'room' : 'rooms'}
+              </span>
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Re-open a prior quiz session or permanently delete old rooms to keep the console clean.
+            </p>
+          </div>
+
+          {/* Quick Delete by Code Form */}
+          <form onSubmit={handleCustomDelete} className="flex items-center gap-2">
+            <input
+              type="text"
+              value={customRoomToDelete}
+              onChange={(e) => setCustomRoomToDelete(e.target.value.toUpperCase())}
+              placeholder="Room Code..."
+              maxLength={6}
+              className="w-32 px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-mono uppercase focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none"
+            />
+            <button
+              type="submit"
+              disabled={!customRoomToDelete.trim() || deletingRoomCode !== null}
+              className="px-3 py-1.5 rounded-lg bg-white hover:bg-red-50 border border-red-200 text-red-600 text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs disabled:opacity-40"
+              title="Permanently delete this room by code"
+            >
+              <Trash2 className="w-3.5 h-3.5 text-red-500" />
+              <span>Delete Room</span>
+            </button>
+          </form>
+        </div>
+
+        {deleteMessage && (
+          <div className="mt-3 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center justify-between">
+            <span>{deleteMessage}</span>
+            <button 
+              onClick={() => setDeleteMessage(null)} 
+              className="text-emerald-700 hover:text-emerald-900 text-xs font-bold ml-2"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        {savedRooms.length > 0 ? (
+          <div className="mt-3 divide-y divide-slate-100 max-h-56 overflow-y-auto pr-1">
+            {savedRooms.map((r) => (
+              <div key={r.roomCode} className="py-2.5 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="px-2.5 py-1 rounded-md bg-blue-50 border border-blue-200 text-[#0070ba] font-mono font-bold text-xs tracking-wider shrink-0">
+                    {r.roomCode}
+                  </span>
+                  <div className="min-w-0 truncate">
+                    <span className="text-xs font-semibold text-slate-800 block truncate">
+                      {r.title || 'Live Quiz Session'}
+                    </span>
+                    <span className="text-[10px] text-slate-400">
+                      {r.createdAt ? `Created ${new Date(r.createdAt).toLocaleDateString()}` : 'Recent Room'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => onQuizCreated(r.roomCode)}
+                    className="px-3 py-1.5 rounded-lg bg-[#0070ba] hover:bg-[#005ea6] text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-2xs"
+                  >
+                    <span>Open</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </button>
+                  <button
+                    type="button"
+                    disabled={deletingRoomCode === r.roomCode}
+                    onClick={() => handleDeleteSavedRoom(r.roomCode)}
+                    className="px-2.5 py-1.5 rounded-lg bg-white hover:bg-red-50 border border-red-200 text-red-600 text-xs font-semibold transition flex items-center gap-1 shadow-2xs disabled:opacity-50"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                    <span>{deletingRoomCode === r.roomCode ? 'Deleting...' : 'Delete'}</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-4 text-xs text-slate-400">
+            No previously saved rooms on this device. Enter any room code above to delete an existing room.
+          </div>
+        )}
+      </div>
+
+      {/* Main Quiz Creator Card */}
       <div className="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm">
         
         {/* Header */}

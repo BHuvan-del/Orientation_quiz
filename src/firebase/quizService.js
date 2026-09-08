@@ -5,6 +5,7 @@ import {
   getDoc, 
   getDocs, 
   updateDoc, 
+  deleteDoc, 
   onSnapshot, 
   serverTimestamp, 
   query, 
@@ -72,6 +73,7 @@ export async function createQuizSession(title, questions) {
   });
 
   await batch.commit();
+  saveHostRoom(roomCode, title);
   return roomCode;
 }
 
@@ -337,3 +339,119 @@ export async function getPlayerAnswer(roomCode, playerId, questionId) {
   }
   return null;
 }
+
+/**
+ * Permanently delete a quiz room and all associated subcollections
+ */
+export async function deleteQuizSession(roomCode) {
+  if (!roomCode) return;
+  const code = roomCode.toUpperCase().trim();
+  await ensureAuth();
+
+  // 1. Delete questions subcollection
+  try {
+    const qCol = collection(db, 'sessions', code, 'questions');
+    const qSnap = await getDocs(qCol);
+    for (const qDoc of qSnap.docs) {
+      await deleteDoc(qDoc.ref).catch(() => {});
+    }
+  } catch (e) {
+    console.warn('Error deleting questions subcollection:', e);
+  }
+
+  // 2. Delete players and answers subcollections
+  try {
+    const pCol = collection(db, 'sessions', code, 'players');
+    const pSnap = await getDocs(pCol);
+    for (const pDoc of pSnap.docs) {
+      try {
+        const aCol = collection(db, 'sessions', code, 'players', pDoc.id, 'answers');
+        const aSnap = await getDocs(aCol);
+        for (const aDoc of aSnap.docs) {
+          await deleteDoc(aDoc.ref).catch(() => {});
+        }
+      } catch (err) {
+        // ignore answer deletion errors
+      }
+      await deleteDoc(pDoc.ref).catch(() => {});
+    }
+  } catch (e) {
+    console.warn('Error deleting players subcollection:', e);
+  }
+
+  // 3. Delete session main document
+  try {
+    const sessionRef = doc(db, 'sessions', code);
+    await deleteDoc(sessionRef);
+  } catch (e) {
+    console.error('Error deleting session root doc:', e);
+    throw e;
+  }
+
+  // 4. Clean up from host local room memory
+  removeSavedHostRoom(code);
+}
+
+/**
+ * Retrieve list of previously created/managed rooms from localStorage
+ */
+export function getSavedHostRooms() {
+  try {
+    const data = localStorage.getItem('host_created_rooms');
+    const list = data ? JSON.parse(data) : [];
+    // If there is an activeHostRoomCode not in the list, include it
+    const active = localStorage.getItem('activeHostRoomCode');
+    if (active && !list.some(r => r.roomCode.toUpperCase() === active.toUpperCase())) {
+      list.unshift({
+        roomCode: active.toUpperCase(),
+        title: 'Active Session',
+        createdAt: new Date().toISOString()
+      });
+    }
+    return list;
+  } catch (e) {
+    return [];
+  }
+}
+
+/**
+ * Save a room code and title to host's local session history
+ */
+export function saveHostRoom(roomCode, title) {
+  if (!roomCode) return;
+  try {
+    const code = roomCode.toUpperCase().trim();
+    const existing = getSavedHostRooms();
+    const filtered = existing.filter(r => r.roomCode.toUpperCase() !== code);
+    const updated = [
+      {
+        roomCode: code,
+        title: title || 'Live Quiz Session',
+        createdAt: new Date().toISOString()
+      },
+      ...filtered
+    ].slice(0, 20); // keep up to 20 rooms
+    localStorage.setItem('host_created_rooms', JSON.stringify(updated));
+  } catch (e) {
+    console.error('Error saving host room:', e);
+  }
+}
+
+/**
+ * Remove a room from host's local session history
+ */
+export function removeSavedHostRoom(roomCode) {
+  if (!roomCode) return;
+  try {
+    const code = roomCode.toUpperCase().trim();
+    const existing = getSavedHostRooms();
+    const updated = existing.filter(r => r.roomCode.toUpperCase() !== code);
+    localStorage.setItem('host_created_rooms', JSON.stringify(updated));
+    if (localStorage.getItem('activeHostRoomCode')?.toUpperCase() === code) {
+      localStorage.removeItem('activeHostRoomCode');
+    }
+  } catch (e) {
+    console.error('Error removing host room:', e);
+  }
+}
+
