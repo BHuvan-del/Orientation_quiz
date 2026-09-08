@@ -11,7 +11,7 @@ import HostQuestion from './HostQuestion';
 import HostResults from './HostResults';
 import HostLeaderboard from './HostLeaderboard';
 import HostAuthGate from './HostAuthGate';
-import { RotateCcw, PlusCircle, Terminal, Radio, Lock } from 'lucide-react';
+import { RotateCcw, PlusCircle, Radio, Lock } from 'lucide-react';
 
 export default function HostApp() {
   const getInitialRoomCode = () => {
@@ -35,7 +35,6 @@ export default function HostApp() {
     sessionStorage.removeItem('host_auth_unlocked');
     setIsAuthenticated(false);
   };
-
 
   const handleQuizCreated = (newCode) => {
     localStorage.setItem('activeHostRoomCode', newCode);
@@ -73,7 +72,6 @@ export default function HostApp() {
     window.location.hash = '/host';
   };
 
-  // Subscribe to session
   useEffect(() => {
     if (!roomCode) {
       setLoading(false);
@@ -130,31 +128,31 @@ export default function HostApp() {
   if (!roomCode || !session) {
     if (loading) {
       return (
-        <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center text-zinc-400 font-mono text-sm">
-          <div className="w-6 h-6 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin mb-3" />
-          <span>[SYSTEM] Connecting to host console...</span>
+        <div className="min-h-screen bg-[#f8fafc] flex flex-col items-center justify-center text-slate-600 font-sans text-sm">
+          <div className="w-6 h-6 border-2 border-[#0070ba] border-t-transparent rounded-full animate-spin mb-3" />
+          <span>Connecting to host console...</span>
         </div>
       );
     }
     return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-100 py-8 px-4 font-sans">
+      <div className="min-h-screen bg-[#f8fafc] text-slate-900 py-8 px-4 font-sans">
         {/* Subheader with Lock option */}
         <div className="max-w-4xl mx-auto mb-4 flex justify-end">
           <button
             onClick={handleLockConsole}
-            className="px-3 py-1 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-white text-xs font-mono flex items-center gap-1.5 transition"
+            className="px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-medium flex items-center gap-1.5 transition shadow-sm"
             title="Lock Console"
           >
-            <Lock className="w-3.5 h-3.5 text-amber-400" />
+            <Lock className="w-3.5 h-3.5 text-slate-500" />
             <span>Lock Console</span>
           </button>
         </div>
         {error && (
-          <div className="max-w-md mx-auto mb-6 p-3 rounded-lg bg-zinc-900 border border-red-500/30 text-red-400 text-xs font-mono flex items-center justify-between">
-            <span>[ERR] {error}</span>
+          <div className="max-w-md mx-auto mb-6 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs font-medium flex items-center justify-between">
+            <span>{error}</span>
             <button 
               onClick={() => { setRoomCode(null); localStorage.removeItem('activeHostRoomCode'); }}
-              className="text-xs text-zinc-400 underline ml-3 hover:text-white"
+              className="text-xs text-slate-700 underline ml-3 hover:text-black"
             >
               New Quiz
             </button>
@@ -165,7 +163,6 @@ export default function HostApp() {
     );
   }
 
-
   const currentQ = questions[session.currentQuestionIndex || 0] || {
     text: 'Loading question...',
     options: ['...', '...', '...', '...'],
@@ -174,25 +171,27 @@ export default function HostApp() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col font-sans">
       
       {/* Universal Host Top Header */}
-      <header className="border-b border-zinc-800/80 bg-zinc-900/60 backdrop-blur px-6 py-3 flex items-center justify-between text-xs font-mono select-none">
+      <header className="border-b border-slate-200 bg-white px-6 py-3 flex items-center justify-between text-xs select-none shadow-xs">
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 text-zinc-300 font-bold">
-            <Terminal className="w-4 h-4 text-cyan-400" />
-            <span>HOST CONSOLE</span>
+          <div className="flex items-center gap-2 text-slate-900 font-bold">
+            <div className="w-6 h-6 rounded bg-[#003087] text-white flex items-center justify-center font-bold text-xs">
+              Q
+            </div>
+            <span>Host Console</span>
           </div>
 
-          <div className="hidden sm:flex items-center gap-2 border-l border-zinc-800 pl-4 text-zinc-400">
-            <span>SESSION:</span>
-            <span className="text-cyan-400 font-bold tracking-widest">{session.roomCode}</span>
+          <div className="hidden sm:flex items-center gap-2 border-l border-slate-200 pl-4 text-slate-500">
+            <span>Room:</span>
+            <span className="text-[#0070ba] font-bold font-mono tracking-wider">{session.roomCode}</span>
           </div>
 
-          <div className="hidden md:flex items-center gap-2 border-l border-zinc-800 pl-4">
-            <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
-              <Radio className="w-3.5 h-3.5 animate-pulse" />
-              STATUS: {session.status.toUpperCase()}
+          <div className="hidden md:flex items-center gap-2 border-l border-slate-200 pl-4">
+            <span className="flex items-center gap-1.5 text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 text-[11px]">
+              <Radio className="w-3 h-3 text-emerald-600" />
+              Status: {session.status.toUpperCase()}
             </span>
           </div>
         </div>
@@ -202,33 +201,32 @@ export default function HostApp() {
           <button
             onClick={handleResetSession}
             disabled={resetting}
-            className="px-3 py-1.5 rounded-md bg-zinc-800/80 hover:bg-zinc-700 border border-zinc-700/80 text-zinc-300 hover:text-white transition flex items-center gap-1.5 text-xs font-mono font-medium disabled:opacity-50"
+            className="px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 transition flex items-center gap-1.5 text-xs font-semibold shadow-xs disabled:opacity-50"
             title="Reset to lobby and clear all player scores"
           >
-            <RotateCcw className={`w-3.5 h-3.5 ${resetting ? 'animate-spin' : ''}`} />
+            <RotateCcw className={`w-3.5 h-3.5 text-slate-500 ${resetting ? 'animate-spin' : ''}`} />
             <span>{resetting ? 'Resetting...' : 'Reset Session'}</span>
           </button>
 
           <button
             onClick={handleCreateNewQuiz}
-            className="px-3 py-1.5 rounded-md bg-zinc-800/80 hover:bg-zinc-700 border border-zinc-700/80 text-zinc-300 hover:text-white transition flex items-center gap-1.5 text-xs font-mono font-medium"
+            className="px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 transition flex items-center gap-1.5 text-xs font-semibold shadow-xs"
             title="Create a new quiz session"
           >
-            <PlusCircle className="w-3.5 h-3.5 text-cyan-400" />
+            <PlusCircle className="w-3.5 h-3.5 text-[#0070ba]" />
             <span className="hidden sm:inline">New Quiz</span>
           </button>
 
           <button
             onClick={handleLockConsole}
-            className="px-2.5 py-1.5 rounded-md bg-zinc-800/80 hover:bg-zinc-700 border border-zinc-700/80 text-amber-400 hover:text-amber-300 transition flex items-center gap-1.5 text-xs font-mono font-medium"
+            className="px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-300 text-slate-600 transition flex items-center gap-1.5 text-xs font-medium shadow-xs"
             title="Lock Console"
           >
-            <Lock className="w-3.5 h-3.5" />
+            <Lock className="w-3.5 h-3.5 text-slate-500" />
             <span className="hidden sm:inline">Lock</span>
           </button>
         </div>
       </header>
-
 
       {/* Main View Area */}
       <main className="flex-1 flex flex-col">

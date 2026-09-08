@@ -3,12 +3,7 @@ import { Clock, Check, Loader2 } from 'lucide-react';
 import { useSynchronizedCountdown } from '../../utils/clock.js';
 import { submitAnswer, getPlayerAnswer } from '../../firebase/quizService.js';
 
-const TECH_BUTTONS = [
-  { label: 'A', border: 'border-zinc-700 bg-zinc-900 active:bg-zinc-800 text-zinc-100', active: 'border-cyan-500 bg-cyan-950/30' },
-  { label: 'B', border: 'border-zinc-700 bg-zinc-900 active:bg-zinc-800 text-zinc-100', active: 'border-violet-500 bg-violet-950/30' },
-  { label: 'C', border: 'border-zinc-700 bg-zinc-900 active:bg-zinc-800 text-zinc-100', active: 'border-amber-500 bg-amber-950/30' },
-  { label: 'D', border: 'border-zinc-700 bg-zinc-900 active:bg-zinc-800 text-zinc-100', active: 'border-emerald-500 bg-emerald-950/30' },
-];
+const CHOICE_LABELS = ['A', 'B', 'C', 'D'];
 
 export default function PlayerQuestion({ 
   session, 
@@ -74,14 +69,16 @@ export default function PlayerQuestion({
 
   if (isLateJoiner) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center justify-center p-6 text-center font-mono">
-        <div className="w-10 h-10 rounded bg-zinc-900 border border-zinc-700 text-cyan-400 flex items-center justify-center mb-3">
-          <Clock className="w-5 h-5" />
+      <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col items-center justify-center p-6 text-center font-sans">
+        <div className="bg-white border border-slate-200 rounded-2xl p-7 max-w-sm w-full shadow-sm text-center">
+          <div className="w-12 h-12 rounded-full bg-blue-50 border border-blue-200 text-[#0070ba] flex items-center justify-center mx-auto mb-3">
+            <Clock className="w-6 h-6" />
+          </div>
+          <h2 className="text-base font-bold text-slate-900 mb-1">Question in Progress</h2>
+          <p className="text-slate-500 text-xs leading-relaxed">
+            Round {currentIndex + 1} is ongoing. You will automatically be synced on the next question.
+          </p>
         </div>
-        <h2 className="text-base font-bold mb-1">[QUIZ_IN_PROGRESS]</h2>
-        <p className="text-zinc-500 text-xs max-w-xs">
-          Round {currentIndex + 1} is ongoing. You will automatically join on the next question.
-        </p>
       </div>
     );
   }
@@ -89,43 +86,45 @@ export default function PlayerQuestion({
   const isTimeUp = timeLeft <= 0;
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col justify-between p-4 max-w-md mx-auto font-sans">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col justify-between p-4 sm:p-6 max-w-lg mx-auto font-sans">
       
       {/* Top Telemetry */}
-      <div className="flex items-center justify-between border-b border-zinc-800 pb-3 font-mono text-xs">
-        <div className="text-zinc-400">
-          Q{currentIndex + 1} // {session.totalQuestions}
+      <div className="flex items-center justify-between border-b border-slate-200 pb-3 text-xs">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 font-semibold">
+          <span>Question {currentIndex + 1} of {session.totalQuestions || 1}</span>
         </div>
 
-        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded border font-bold ${
+        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border font-bold ${
           timeLeft <= 5 
-            ? 'border-red-500 bg-red-950/40 text-red-400 animate-pulse' 
-            : 'border-zinc-700 bg-zinc-900 text-cyan-400'
+            ? 'border-red-200 bg-red-50 text-red-600 animate-pulse' 
+            : 'border-slate-200 bg-white text-slate-800 shadow-2xs'
         }`}>
-          <Clock className="w-3 h-3 text-zinc-400" />
-          <span>{String(timeLeft).padStart(2, '0')}s</span>
+          <Clock className="w-3.5 h-3.5 text-slate-400" />
+          <span>{String(timeLeft).padStart(2, '0')}s remaining</span>
         </div>
       </div>
 
-      {/* Question Statement */}
-      <div className="my-3 text-left">
-        <h1 className="text-base font-semibold text-white leading-snug">
+      {/* Question Card */}
+      <div className="my-3 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+        <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block mb-1">
+          Statement
+        </span>
+        <h1 className="text-base sm:text-lg font-semibold text-slate-900 leading-snug">
           {question.text}
         </h1>
       </div>
 
       {/* Feedback Banner */}
       {hasSubmitted && (
-        <div className="my-2 p-2.5 rounded bg-zinc-900 border border-emerald-500/40 text-emerald-400 font-mono text-xs flex items-center justify-center gap-2">
-          <Check className="w-4 h-4 stroke-[3]" />
-          <span>SUBMISSION_LOCKED // VIEW STAGE DISPLAY</span>
+        <div className="my-1.5 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center justify-center gap-2">
+          <Check className="w-4 h-4 stroke-[2.5] text-emerald-600" />
+          <span>Answer Registered • Look at Stage Screen</span>
         </div>
       )}
 
       {/* 4 Choices Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 my-auto pb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 my-auto py-2">
         {question.options.map((opt, i) => {
-          const theme = TECH_BUTTONS[i % TECH_BUTTONS.length];
           const isChosen = selectedOption === i;
           const isDisabled = hasSubmitted || submitting || isTimeUp;
 
@@ -135,22 +134,22 @@ export default function PlayerQuestion({
               type="button"
               onClick={() => handleSelect(i)}
               disabled={isDisabled}
-              className={`w-full min-h-[75px] p-3.5 rounded-lg border transition-all text-left flex items-center gap-3 select-none ${
+              className={`w-full min-h-[72px] p-3.5 rounded-xl border text-left flex items-center gap-3 transition-all select-none ${
                 isChosen
-                  ? 'border-cyan-400 bg-zinc-900 ring-2 ring-cyan-400/50 shadow-lg'
+                  ? 'border-[#0070ba] bg-blue-50/70 ring-2 ring-[#0070ba]/30 shadow-xs'
                   : isDisabled && selectedOption !== null
-                    ? 'border-zinc-800 bg-zinc-900/40 opacity-40'
-                    : 'border-zinc-800 bg-zinc-900/90 hover:border-zinc-700 active:scale-[0.99]'
+                    ? 'border-slate-200 bg-slate-50/60 opacity-40 cursor-not-allowed'
+                    : 'border-slate-200 bg-white hover:border-[#0070ba] hover:bg-slate-50/50 active:scale-[0.99] shadow-2xs'
               }`}
             >
-              <div className={`w-7 h-7 rounded border font-mono font-bold text-xs flex items-center justify-center shrink-0 ${
+              <div className={`w-8 h-8 rounded-lg border font-bold text-xs flex items-center justify-center shrink-0 transition-colors ${
                 isChosen 
-                  ? 'bg-cyan-500 text-zinc-950 border-cyan-400' 
-                  : 'bg-zinc-800 text-zinc-400 border-zinc-700'
+                  ? 'bg-[#0070ba] text-white border-[#0070ba]' 
+                  : 'bg-slate-100 text-slate-700 border-slate-200'
               }`}>
-                {theme.label}
+                {CHOICE_LABELS[i]}
               </div>
-              <div className="text-sm font-medium text-zinc-100 leading-snug break-words">
+              <div className="text-sm font-medium text-slate-800 leading-snug break-words">
                 {opt}
               </div>
             </button>
@@ -159,8 +158,8 @@ export default function PlayerQuestion({
       </div>
 
       {/* Footer Status */}
-      <div className="text-center font-mono text-[10px] text-zinc-600 py-1 border-t border-zinc-900">
-        {hasSubmitted ? 'SELECTION REGISTERED • WAITING FOR ROUND EVALUATION' : 'TAP AN OPTION TO REGISTER YOUR SUBMISSION'}
+      <div className="text-center text-xs text-slate-400 py-2 border-t border-slate-200">
+        {hasSubmitted ? 'Submission locked • Results will appear shortly' : 'Select one option to submit your answer'}
       </div>
 
     </div>

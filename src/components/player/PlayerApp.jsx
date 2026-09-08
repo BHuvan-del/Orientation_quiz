@@ -93,9 +93,9 @@ export default function PlayerApp({ urlRoomCode }) {
 
   if (loading || !session) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white p-4">
-        <Loader2 className="w-10 h-10 animate-spin text-indigo-500 mb-4" />
-        <p className="text-slate-400 font-medium text-sm">Synchronizing with live session...</p>
+      <div className="min-h-screen bg-[#f8fafc] flex flex-col items-center justify-center text-slate-800 p-4 font-sans">
+        <Loader2 className="w-10 h-10 animate-spin text-[#0070ba] mb-4" />
+        <p className="text-slate-600 font-medium text-sm">Synchronizing with live session...</p>
       </div>
     );
   }

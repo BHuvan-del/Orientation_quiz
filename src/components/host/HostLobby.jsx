@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { Users, Play, Copy, Check, Terminal, Wifi } from 'lucide-react';
+import { Users, Play, Copy, Check } from 'lucide-react';
 import { startQuestion } from '../../firebase/quizService.js';
 import { useThrottledValue } from '../../utils/throttle.js';
 
@@ -36,109 +36,109 @@ export default function HostLobby({ session, players = [] }) {
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-between p-6 md:p-12 max-w-7xl mx-auto w-full">
+    <div className="flex-1 flex flex-col justify-between p-6 md:p-12 max-w-7xl mx-auto w-full font-sans">
       
       {/* Lobby Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-zinc-800">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
         <div>
-          <div className="flex items-center gap-2 text-cyan-400 font-mono text-xs mb-1">
-            <Wifi className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-            <span>STAGE_BROADCAST // READY</span>
+          <div className="inline-flex items-center gap-1.5 text-[#0070ba] font-semibold text-xs mb-1">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            Stage Lobby Open
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white font-mono">
-            {session.title || 'Tech Quiz'}
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
+            {session.title || 'Live Quiz'}
           </h1>
         </div>
 
-        {/* Room Code Callout */}
-        <div className="flex items-center gap-3 bg-zinc-900 border border-zinc-700/80 rounded-lg px-4 py-2">
+        {/* Room Code Card */}
+        <div className="flex items-center gap-3 bg-white border border-slate-300 rounded-xl px-5 py-2.5 shadow-sm">
           <div>
-            <div className="text-[10px] font-mono text-zinc-400 uppercase">
-              ROOM CODE
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              Room Code
             </div>
-            <div className="text-2xl font-mono font-bold tracking-widest text-cyan-400">
+            <div className="text-3xl font-mono font-black tracking-widest text-[#003087]">
               {session.roomCode}
             </div>
           </div>
           <button
             onClick={copyLink}
-            className="p-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition"
-            title="Copy URL"
+            className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition"
+            title="Copy join link"
           >
-            {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+            {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
           </button>
         </div>
       </div>
 
-      {/* Center Layout: QR Code + Live Roster */}
+      {/* Center Display: QR Code + Roster */}
       <div className="my-auto py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
         
-        {/* Left: Clean QR Code */}
+        {/* Left: Big Stage QR Code */}
         <div className="lg:col-span-5 flex flex-col items-center text-center">
-          <div className="p-4 bg-white rounded-xl shadow-lg border border-zinc-700">
+          <div className="p-5 bg-white rounded-2xl shadow-sm border border-slate-200">
             <QRCodeSVG 
               value={joinUrl} 
-              size={210} 
+              size={230} 
               level="M"
               includeMargin={false}
             />
           </div>
           
           <div className="mt-4 space-y-1">
-            <p className="text-sm font-mono text-zinc-300">
-              SCAN TO ENTER QUIZ
+            <p className="text-base font-bold text-slate-800">
+              Scan with your phone to join
             </p>
-            <p className="text-xs font-mono text-zinc-500 break-all">
+            <p className="text-xs text-slate-500 font-mono break-all">
               {joinUrl}
             </p>
           </div>
         </div>
 
-        {/* Right: Telemetry & Player List */}
+        {/* Right: Connected Roster */}
         <div className="lg:col-span-7">
-          <div className="bg-zinc-900/80 border border-zinc-800 rounded-xl p-6">
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
             
-            {/* Header Telemetry */}
-            <div className="flex items-center justify-between pb-4 border-b border-zinc-800">
+            {/* Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded bg-zinc-800 border border-zinc-700 flex items-center justify-center text-cyan-400">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#0070ba] flex items-center justify-center font-bold">
                   <Users className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-xl font-mono font-bold text-white">
+                  <div className="text-2xl font-bold text-slate-900">
                     {throttledPlayers.length}
                   </div>
-                  <div className="text-[10px] font-mono text-zinc-400 uppercase">
-                    Connected Clients
+                  <div className="text-[11px] text-slate-500 uppercase font-semibold">
+                    Joined Participants
                   </div>
                 </div>
               </div>
 
-              <span className="text-xs font-mono text-emerald-400 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                LIVE SYNC
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                Live Sync
               </span>
             </div>
 
             {/* Players Grid */}
             <div className="mt-4">
-              <div className="text-xs font-mono text-zinc-500 mb-2">
-                ACTIVE ROSTER:
+              <div className="text-xs font-medium text-slate-400 mb-2">
+                Connected Students:
               </div>
 
               {throttledPlayers.length === 0 ? (
-                <div className="py-12 text-center text-zinc-600 font-mono text-xs">
-                  [WAITING_FOR_CONNECTIONS] Scan QR code on mobile device...
+                <div className="py-12 text-center text-slate-400 text-xs">
+                  Waiting for students to scan QR code and connect...
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-2 max-h-60 overflow-y-auto pr-1">
                   {throttledPlayers.map((p) => (
                     <div 
                       key={p.id}
-                      className="px-2.5 py-1 rounded bg-zinc-800/80 border border-zinc-700/60 text-xs font-mono text-zinc-300 flex items-center gap-2"
+                      className="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700 flex items-center gap-2 shadow-2xs"
                     >
-                      <span className="text-white font-medium">{p.nickname}</span>
-                      <span className="text-[10px] text-cyan-400 bg-zinc-900 px-1 py-0.5 rounded border border-zinc-800">
+                      <span className="font-semibold text-slate-900">{p.nickname}</span>
+                      <span className="text-[10px] text-[#0070ba] font-mono bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
                         {p.rollNo}
                       </span>
                     </div>
@@ -153,18 +153,18 @@ export default function HostLobby({ session, players = [] }) {
       </div>
 
       {/* Bottom Bar */}
-      <div className="pt-6 border-t border-zinc-800 flex items-center justify-between">
-        <div className="text-xs font-mono text-zinc-400">
-          QUESTIONS: <span className="text-white font-bold">{session.totalQuestions}</span>
+      <div className="pt-6 border-t border-slate-200 flex items-center justify-between">
+        <div className="text-xs text-slate-500">
+          Total Questions: <span className="text-slate-900 font-bold">{session.totalQuestions}</span> (30s each)
         </div>
 
         <button
           onClick={handleStart}
           disabled={starting}
-          className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-zinc-950 font-mono font-bold text-xs rounded transition flex items-center gap-2 shadow-sm disabled:opacity-50"
+          className="px-6 py-3 bg-[#0070ba] hover:bg-[#005ea6] text-white font-bold text-xs rounded-lg transition flex items-center gap-2 shadow-sm disabled:opacity-50"
         >
           <Play className="w-4 h-4 fill-current" />
-          {starting ? 'LAUNCHING...' : 'START QUIZ (QUESTION 1)'}
+          {starting ? 'Starting Quiz...' : 'Start Quiz (Question 1)'}
         </button>
       </div>
 

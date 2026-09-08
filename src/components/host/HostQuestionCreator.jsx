@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Play, Code2, Clock, Check, Terminal } from 'lucide-react';
+import { Plus, Trash2, Play, Clock, Check } from 'lucide-react';
 import { createQuizSession } from '../../firebase/quizService.js';
 
 const SAMPLE_QUESTIONS = [
@@ -110,28 +110,27 @@ export default function HostQuestionCreator({ onQuizCreated }) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-6 px-4">
-      <div className="bg-zinc-900/90 border border-zinc-800 rounded-xl p-6 md:p-8 shadow-2xl">
+    <div className="max-w-4xl mx-auto py-6 px-4 font-sans">
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm">
         
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-zinc-800 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-200 gap-4">
           <div>
-            <div className="flex items-center gap-2 text-cyan-400 font-mono text-xs mb-1">
-              <Terminal className="w-4 h-4" />
-              <span>CONFIGURE_QUIZ</span>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-[#0070ba] text-xs font-semibold mb-1.5">
+              Quiz Setup
             </div>
-            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white font-mono">
-              Session Configuration
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+              Create New Quiz Session
             </h1>
-            <p className="text-xs text-zinc-400 mt-1">
-              Set question statements, 4 choices, correct answer flag, and 30s timers.
+            <p className="text-xs text-slate-500 mt-1">
+              Add questions, set the correct choice, and configure 30-second timers.
             </p>
           </div>
 
           <button
             onClick={() => setQuestions(SAMPLE_QUESTIONS)}
             type="button"
-            className="px-3 py-1.5 text-xs font-mono rounded border border-zinc-700 bg-zinc-800/60 hover:bg-zinc-800 text-zinc-300 transition shrink-0"
+            className="px-3.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-xs transition shrink-0"
           >
             Load Sample Questions
           </button>
@@ -139,7 +138,7 @@ export default function HostQuestionCreator({ onQuizCreated }) {
 
         {/* Title Input */}
         <div className="mt-6">
-          <label className="block text-xs font-mono font-medium text-zinc-400 mb-1.5 uppercase">
+          <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
             Quiz Name / Title
           </label>
           <input
@@ -147,20 +146,20 @@ export default function HostQuestionCreator({ onQuizCreated }) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g. Systems & Algorithms Challenge"
-            className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-700 bg-zinc-950 text-white font-medium text-sm focus:border-cyan-500 focus:outline-none"
+            className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 font-medium text-sm focus:border-[#0070ba] focus:ring-1 focus:ring-[#0070ba] focus:outline-none"
           />
         </div>
 
-        {/* Questions Header */}
+        {/* Questions Section */}
         <div className="mt-8 space-y-5">
           <div className="flex items-center justify-between">
-            <div className="text-xs font-mono font-semibold text-zinc-300 uppercase tracking-wider">
+            <div className="text-xs font-bold text-slate-700 uppercase tracking-wider">
               Questions ({questions.length})
             </div>
             <button
               type="button"
               onClick={addQuestion}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-medium rounded border border-cyan-500/40 bg-cyan-950/30 hover:bg-cyan-900/40 text-cyan-300 transition"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-50 hover:bg-blue-100 text-[#0070ba] border border-blue-200 transition"
             >
               <Plus className="w-3.5 h-3.5" /> Add Question
             </button>
@@ -169,21 +168,21 @@ export default function HostQuestionCreator({ onQuizCreated }) {
           {questions.map((q, qIndex) => (
             <div 
               key={qIndex} 
-              className="border border-zinc-800 rounded-lg p-4 bg-zinc-950/60 font-sans"
+              className="border border-slate-200 rounded-xl p-5 bg-[#fafbfc]"
             >
-              {/* Question Top Row */}
+              {/* Question Header */}
               <div className="flex items-center justify-between mb-3 text-xs">
-                <span className="font-mono font-bold text-cyan-400">
-                  #{String(qIndex + 1).padStart(2, '0')}
+                <span className="font-bold text-slate-700">
+                  Question #{qIndex + 1}
                 </span>
 
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1.5 text-zinc-400 font-mono text-xs">
-                    <Clock className="w-3.5 h-3.5 text-zinc-500" />
+                  <div className="flex items-center gap-1.5 text-slate-600 text-xs">
+                    <Clock className="w-3.5 h-3.5 text-slate-400" />
                     <select
                       value={q.timeLimitSeconds}
                       onChange={(e) => updateTimeLimit(qIndex, e.target.value)}
-                      className="bg-zinc-900 border border-zinc-700 rounded px-2 py-0.5 text-xs text-zinc-200"
+                      className="bg-white border border-slate-300 rounded px-2 py-1 text-xs text-slate-700 focus:outline-none"
                     >
                       <option value="15">15s</option>
                       <option value="30">30s (Default)</option>
@@ -196,7 +195,7 @@ export default function HostQuestionCreator({ onQuizCreated }) {
                     <button
                       type="button"
                       onClick={() => removeQuestion(qIndex)}
-                      className="text-zinc-500 hover:text-red-400 transition"
+                      className="text-slate-400 hover:text-red-600 transition"
                       title="Remove question"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -205,16 +204,16 @@ export default function HostQuestionCreator({ onQuizCreated }) {
                 </div>
               </div>
 
-              {/* Question Text */}
+              {/* Question Statement */}
               <input
                 type="text"
                 value={q.text}
                 onChange={(e) => updateQuestionText(qIndex, e.target.value)}
                 placeholder="Enter question statement..."
-                className="w-full px-3 py-2 rounded border border-zinc-700 bg-zinc-900 text-white text-sm font-medium mb-3 focus:border-cyan-500 focus:outline-none"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-sm font-medium mb-3 focus:border-[#0070ba] focus:ring-1 focus:ring-[#0070ba] focus:outline-none"
               />
 
-              {/* 4 Options */}
+              {/* 4 Choices */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {q.options.map((opt, optIndex) => {
                   const isCorrect = q.correctIndex === optIndex;
@@ -223,19 +222,19 @@ export default function HostQuestionCreator({ onQuizCreated }) {
                   return (
                     <div 
                       key={optIndex}
-                      className={`flex items-center gap-2.5 p-2 rounded border transition ${
+                      className={`flex items-center gap-2.5 p-2 rounded-lg border transition ${
                         isCorrect 
-                          ? 'border-emerald-500/50 bg-emerald-950/20' 
-                          : 'border-zinc-800 bg-zinc-900/60'
+                          ? 'border-emerald-500 bg-emerald-50/50' 
+                          : 'border-slate-200 bg-white'
                       }`}
                     >
                       <button
                         type="button"
                         onClick={() => setCorrectIndex(qIndex, optIndex)}
-                        className={`w-6 h-6 rounded font-mono font-bold text-xs flex items-center justify-center transition shrink-0 ${
+                        className={`w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center transition shrink-0 ${
                           isCorrect 
-                            ? 'bg-emerald-500 text-zinc-950' 
-                            : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200'
+                            ? 'bg-emerald-600 text-white' 
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                         }`}
                         title="Click to mark as correct answer"
                       >
@@ -247,7 +246,7 @@ export default function HostQuestionCreator({ onQuizCreated }) {
                         value={opt}
                         onChange={(e) => updateOptionText(qIndex, optIndex, e.target.value)}
                         placeholder={`Option ${label}`}
-                        className="w-full bg-transparent text-xs text-zinc-200 focus:outline-none font-medium"
+                        className="w-full bg-transparent text-xs text-slate-800 focus:outline-none font-medium"
                       />
                     </div>
                   );
@@ -258,21 +257,21 @@ export default function HostQuestionCreator({ onQuizCreated }) {
         </div>
 
         {error && (
-          <div className="mt-5 p-3 rounded bg-zinc-900 border border-red-500/30 text-red-400 text-xs font-mono">
-            [ERR] {error}
+          <div className="mt-5 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
+            {error}
           </div>
         )}
 
         {/* Launch Button */}
-        <div className="mt-8 pt-6 border-t border-zinc-800 flex justify-end">
+        <div className="mt-8 pt-6 border-t border-slate-200 flex justify-end">
           <button
             type="button"
             disabled={loading}
             onClick={handleLaunch}
-            className="w-full sm:w-auto px-6 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white font-mono font-semibold text-xs rounded transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+            className="w-full sm:w-auto px-6 py-2.5 bg-[#0070ba] hover:bg-[#005ea6] text-white font-semibold text-xs rounded-lg transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
           >
             <Play className="w-3.5 h-3.5 fill-current" />
-            {loading ? 'INITIALIZING_SESSION...' : 'LAUNCH SESSION & OPEN LOBBY'}
+            {loading ? 'Initializing Session...' : 'Launch Quiz & Open Lobby'}
           </button>
         </div>
 

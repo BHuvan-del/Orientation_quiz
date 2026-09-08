@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, ArrowRight, BarChart2, Users } from 'lucide-react';
+import { Check, ArrowRight, Users } from 'lucide-react';
 import { updateSessionStatus } from '../../firebase/quizService.js';
 
 export default function HostResults({ session, question, players = [] }) {
@@ -27,22 +27,22 @@ export default function HostResults({ session, question, players = [] }) {
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-between p-6 md:p-12 max-w-6xl mx-auto w-full">
+    <div className="flex-1 flex flex-col justify-between p-6 md:p-12 max-w-6xl mx-auto w-full font-sans">
       
       {/* Top Header */}
-      <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+      <div className="flex items-center justify-between border-b border-slate-200 pb-4">
         <div>
-          <div className="text-xs font-mono text-emerald-400 font-bold uppercase">
-            EVALUATION // QUESTION {String(currentIndex + 1).padStart(2, '0')}
+          <div className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
+            Results • Question {currentIndex + 1} of {session.totalQuestions}
           </div>
-          <h2 className="text-lg font-bold text-white mt-1">
+          <h2 className="text-xl font-bold text-slate-900 mt-1">
             {question.text}
           </h2>
         </div>
 
-        <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded text-xs font-mono text-zinc-300">
-          <Users className="w-3.5 h-3.5 text-cyan-400" />
-          {totalResponses} SUBMISSIONS
+        <div className="flex items-center gap-2 bg-white border border-slate-200 px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-700 shadow-2xs">
+          <Users className="w-3.5 h-3.5 text-[#0070ba]" />
+          {totalResponses} Total Submissions
         </div>
       </div>
 
@@ -57,44 +57,44 @@ export default function HostResults({ session, question, players = [] }) {
           return (
             <div
               key={idx}
-              className={`relative overflow-hidden rounded-lg p-4 border transition-all ${
+              className={`relative overflow-hidden rounded-xl p-4 border transition-all ${
                 isCorrect
-                  ? 'border-emerald-500/80 bg-zinc-900/95'
-                  : 'border-zinc-800 bg-zinc-900/60 opacity-80'
+                  ? 'border-emerald-500 bg-emerald-50/40 shadow-xs'
+                  : 'border-slate-200 bg-white'
               }`}
             >
               {/* Clean progress bar fill */}
               <div
                 className={`absolute inset-y-0 left-0 transition-all duration-700 ${
-                  isCorrect ? 'bg-emerald-500/15' : 'bg-zinc-800/80'
+                  isCorrect ? 'bg-emerald-100/70' : 'bg-slate-100'
                 }`}
                 style={{ width: `${pct}%` }}
               />
 
               <div className="relative z-10 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <span className={`w-7 h-7 rounded font-mono font-bold text-xs flex items-center justify-center shrink-0 ${
-                    isCorrect ? 'bg-emerald-500 text-zinc-950' : 'bg-zinc-800 text-zinc-400'
+                <div className="flex items-center gap-3.5">
+                  <span className={`w-8 h-8 rounded-lg font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs ${
+                    isCorrect ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'
                   }`}>
                     {label}
                   </span>
 
                   <div>
-                    <div className="text-base font-semibold text-white flex items-center gap-2">
+                    <div className="text-base font-bold text-slate-900 flex items-center gap-2">
                       {opt}
                       {isCorrect && (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase">
-                          <Check className="w-3 h-3 stroke-[3]" /> CORRECT CHOICE
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                          <Check className="w-3 h-3 stroke-[3]" /> Correct Answer
                         </span>
                       )}
                     </div>
-                    <div className="text-xs font-mono text-zinc-500 mt-0.5">
-                      {count} {count === 1 ? 'vote' : 'votes'} ({pct}%)
+                    <div className="text-xs text-slate-500 mt-0.5">
+                      {count} {count === 1 ? 'student' : 'students'} ({pct}%)
                     </div>
                   </div>
                 </div>
 
-                <div className="text-lg font-mono font-bold text-zinc-200">
+                <div className="text-lg font-mono font-bold text-slate-800">
                   {pct}%
                 </div>
               </div>
@@ -103,13 +103,13 @@ export default function HostResults({ session, question, players = [] }) {
         })}
       </div>
 
-      {/* Footer / Control */}
-      <div className="pt-4 border-t border-zinc-800 flex items-center justify-end">
+      {/* Footer / Action */}
+      <div className="pt-4 border-t border-slate-200 flex items-center justify-end">
         <button
           onClick={handleNext}
-          className="px-6 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white font-mono font-bold text-xs rounded transition flex items-center gap-2 shadow-sm"
+          className="px-6 py-2.5 bg-[#0070ba] hover:bg-[#005ea6] text-white font-semibold text-xs rounded-lg transition flex items-center gap-2 shadow-sm"
         >
-          VIEW LEADERBOARD
+          View Leaderboard
           <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>

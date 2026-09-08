@@ -80,31 +80,30 @@ export default function HostLeaderboard({
     <div className="flex-1 flex flex-col justify-between p-6 md:p-12 max-w-6xl mx-auto w-full font-sans">
       
       {/* Top Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-zinc-800 pb-4 gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-200 pb-4 gap-4">
         <div>
-          <div className="text-xs font-mono text-amber-400 font-bold uppercase flex items-center gap-1.5">
-            <Trophy className="w-3.5 h-3.5 text-amber-400" />
+          <div className="text-xs font-bold text-amber-700 uppercase tracking-wider flex items-center gap-1.5">
+            <Trophy className="w-4 h-4 text-amber-500" />
             {isEnded 
-              ? 'FINAL RESULTS // QUIZ CONCLUDED' 
-              : `LEADERBOARD // ROUND ${currentIndex + 1} OF ${session.totalQuestions}`}
+              ? 'Final Results • Quiz Concluded' 
+              : `Leaderboard • Round ${currentIndex + 1} of ${session.totalQuestions}`}
           </div>
-          <h1 className="text-xl md:text-2xl font-bold text-white font-mono mt-0.5">
+          <h1 className="text-2xl font-extrabold text-slate-900 mt-0.5">
             {session.title}
           </h1>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="text-xs font-mono text-zinc-500">
-            COMPETITORS: <span className="text-zinc-300 font-bold">{sortedPlayers.length}</span>
+          <div className="text-xs text-slate-500">
+            Competitors: <span className="text-slate-900 font-bold">{sortedPlayers.length}</span>
           </div>
 
-          {/* Direct Create New Quiz shortcut in header */}
           <button
             onClick={handleCreateNew}
-            className="px-3 py-1.5 rounded border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-mono transition flex items-center gap-1.5"
+            className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs transition flex items-center gap-1.5"
             title="Start a new quiz from scratch"
           >
-            <PlusCircle className="w-3.5 h-3.5 text-cyan-400" />
+            <PlusCircle className="w-3.5 h-3.5 text-[#0070ba]" />
             <span>New Quiz</span>
           </button>
         </div>
@@ -112,14 +111,14 @@ export default function HostLeaderboard({
 
       {/* Concluded Alert Banner if ended */}
       {isEnded && (
-        <div className="my-4 p-4 rounded-lg bg-zinc-900 border border-amber-500/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-mono">
+        <div className="my-4 p-4 rounded-xl bg-blue-50 border border-blue-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <div className="text-amber-400 font-bold text-sm flex items-center gap-2">
-              <Flag className="w-4 h-4" />
-              QUIZ OFFICIALLY CONCLUDED
+            <div className="text-[#003087] font-bold text-sm flex items-center gap-2">
+              <Flag className="w-4 h-4 text-[#0070ba]" />
+              Quiz Officially Concluded
             </div>
-            <div className="text-zinc-400 text-xs mt-0.5">
-              Standings are locked. You can rerun this session or build a new quiz.
+            <div className="text-slate-600 text-xs mt-0.5">
+              Standings are locked. You can rerun this session or create a brand new quiz.
             </div>
           </div>
 
@@ -127,18 +126,18 @@ export default function HostLeaderboard({
             <button
               onClick={handleReset}
               disabled={loadingAction === 'reset'}
-              className="px-3.5 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 text-xs font-bold transition flex items-center gap-1.5"
+              className="px-3.5 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold transition flex items-center gap-1.5 shadow-2xs"
             >
-              <RotateCcw className={`w-3.5 h-3.5 text-cyan-400 ${loadingAction === 'reset' ? 'animate-spin' : ''}`} />
-              <span>RESET & RERUN</span>
+              <RotateCcw className={`w-3.5 h-3.5 text-slate-500 ${loadingAction === 'reset' ? 'animate-spin' : ''}`} />
+              <span>Reset & Rerun</span>
             </button>
 
             <button
               onClick={handleCreateNew}
-              className="px-4 py-1.5 rounded bg-cyan-600 hover:bg-cyan-500 text-zinc-950 text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
+              className="px-4 py-1.5 rounded-lg bg-[#0070ba] hover:bg-[#005ea6] text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-sm"
             >
               <PlusCircle className="w-3.5 h-3.5" />
-              <span>CREATE NEW QUIZ</span>
+              <span>Create New Quiz</span>
             </button>
           </div>
         </div>
@@ -147,17 +146,17 @@ export default function HostLeaderboard({
       {/* Leaderboard Table / Roster */}
       <div className="my-auto py-4 max-w-4xl mx-auto w-full">
         {top15.length === 0 ? (
-          <div className="text-center py-12 text-zinc-600 font-mono text-xs">
-            [NO_SCORES_RECORDED] Waiting for player responses...
+          <div className="text-center py-12 text-slate-400 text-xs">
+            No scores registered yet.
           </div>
         ) : (
-          <div className="border border-zinc-800 rounded-lg overflow-hidden bg-zinc-900/70 divide-y divide-zinc-800/80">
+          <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm divide-y divide-slate-100">
             {/* Table Header */}
-            <div className="grid grid-cols-12 px-4 py-2.5 bg-zinc-900 text-[11px] font-mono text-zinc-400 uppercase tracking-wider font-semibold">
-              <div className="col-span-2 sm:col-span-1">RANK</div>
-              <div className="col-span-6 sm:col-span-7">PARTICIPANT</div>
-              <div className="col-span-2 text-right">DELTA</div>
-              <div className="col-span-2 text-right">SCORE</div>
+            <div className="grid grid-cols-12 px-5 py-3 bg-slate-50 text-xs font-semibold text-slate-600 uppercase tracking-wider">
+              <div className="col-span-2 sm:col-span-1">Rank</div>
+              <div className="col-span-6 sm:col-span-7">Participant</div>
+              <div className="col-span-2 text-right">Round Delta</div>
+              <div className="col-span-2 text-right">Total Score</div>
             </div>
 
             {/* Table Rows */}
@@ -168,41 +167,46 @@ export default function HostLeaderboard({
               return (
                 <div
                   key={p.id}
-                  className={`grid grid-cols-12 px-4 py-3 items-center transition font-sans ${
-                    isTop ? 'bg-amber-950/10' : 'hover:bg-zinc-800/40'
+                  className={`grid grid-cols-12 px-5 py-3.5 items-center transition ${
+                    isTop ? 'bg-amber-50/40' : 'hover:bg-slate-50/60'
                   }`}
                 >
                   {/* Rank Column */}
-                  <div className="col-span-2 sm:col-span-1 font-mono font-bold text-xs text-zinc-400">
-                    <span className={isTop ? 'text-amber-400 font-black' : rank <= 3 ? 'text-zinc-200' : ''}>
-                      #{String(rank).padStart(2, '0')}
+                  <div className="col-span-2 sm:col-span-1 font-bold text-xs">
+                    <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs ${
+                      rank === 1 ? 'bg-amber-400 text-amber-950 font-extrabold' :
+                      rank === 2 ? 'bg-slate-200 text-slate-800' :
+                      rank === 3 ? 'bg-amber-100 text-amber-900' :
+                      'text-slate-500'
+                    }`}>
+                      {rank}
                     </span>
                   </div>
 
                   {/* Participant */}
-                  <div className="col-span-6 sm:col-span-7 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-                    <span className="font-semibold text-sm text-zinc-100">
+                  <div className="col-span-6 sm:col-span-7 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2.5">
+                    <span className="font-semibold text-sm text-slate-900">
                       {p.nickname}
                     </span>
-                    <span className="text-[10px] font-mono text-cyan-400 bg-zinc-950 px-1.5 py-0.5 rounded border border-zinc-800 w-fit">
+                    <span className="text-[11px] font-mono text-[#0070ba] bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 w-fit">
                       {p.rollNo}
                     </span>
                   </div>
 
                   {/* Delta points this round */}
-                  <div className="col-span-2 text-right font-mono text-xs">
+                  <div className="col-span-2 text-right text-xs">
                     {p.lastPoints > 0 && p.lastAnswerQuestionIndex === currentIndex ? (
-                      <span className="text-emerald-400 font-semibold">
+                      <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                         +{p.lastPoints}
                       </span>
                     ) : (
-                      <span className="text-zinc-600">—</span>
+                      <span className="text-slate-400">—</span>
                     )}
                   </div>
 
                   {/* Total Score */}
-                  <div className="col-span-2 text-right font-mono font-bold text-sm text-white">
-                    {p.score || 0} <span className="text-[10px] font-normal text-zinc-500">pts</span>
+                  <div className="col-span-2 text-right font-mono font-bold text-sm text-slate-900">
+                    {p.score || 0} <span className="text-xs font-normal text-slate-400">pts</span>
                   </div>
                 </div>
               );
@@ -212,9 +216,9 @@ export default function HostLeaderboard({
       </div>
 
       {/* Footer Controls */}
-      <div className="pt-4 border-t border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="text-xs font-mono text-zinc-500">
-          ROOM: <span className="text-zinc-300 font-bold">{session.roomCode}</span>
+      <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="text-xs text-slate-500">
+          Room: <span className="text-slate-900 font-bold font-mono">{session.roomCode}</span>
         </div>
 
         <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
@@ -223,55 +227,53 @@ export default function HostLeaderboard({
               <button
                 onClick={handleReset}
                 disabled={loadingAction === 'reset'}
-                className="px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-mono text-xs font-semibold rounded border border-zinc-700 transition flex items-center gap-1.5"
+                className="px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg border border-slate-300 transition flex items-center gap-1.5 shadow-xs"
               >
-                <RotateCcw className="w-3.5 h-3.5 text-cyan-400" />
-                RESET & RERUN QUIZ
+                <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+                Reset & Rerun Quiz
               </button>
 
               <button
                 onClick={handleCreateNew}
-                className="px-5 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-zinc-950 font-mono text-xs font-bold rounded transition flex items-center gap-1.5 shadow-sm"
+                className="px-5 py-2.5 bg-[#0070ba] hover:bg-[#005ea6] text-white text-xs font-semibold rounded-lg transition flex items-center gap-1.5 shadow-sm"
               >
                 <PlusCircle className="w-3.5 h-3.5" />
-                CREATE NEW QUIZ
+                Create New Quiz
               </button>
             </>
           ) : (
             <>
-              {/* If not ended, provide Next Question if not final */}
               {!isFinal && (
                 <button
                   onClick={handleNextQuestion}
                   disabled={loadingAction === 'next'}
-                  className="px-5 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-zinc-950 font-mono text-xs font-bold rounded transition flex items-center gap-2 shadow-sm disabled:opacity-50"
+                  className="px-5 py-2.5 bg-[#0070ba] hover:bg-[#005ea6] text-white text-xs font-semibold rounded-lg transition flex items-center gap-2 shadow-sm disabled:opacity-50"
                 >
                   {loadingAction === 'next' ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   ) : (
                     <>
-                      NEXT QUESTION
+                      Next Question
                       <ArrowRight className="w-3.5 h-3.5" />
                     </>
                   )}
                 </button>
               )}
 
-              {/* Conclude Quiz button - available on final question AND as early conclude */}
               <button
                 onClick={handleEndQuiz}
                 disabled={loadingAction === 'conclude'}
-                className="px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white font-mono text-xs font-bold rounded transition flex items-center gap-2 shadow-sm disabled:opacity-50"
+                className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition flex items-center gap-2 shadow-sm disabled:opacity-50"
               >
                 {loadingAction === 'conclude' ? (
                   <>
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    CONCLUDING...
+                    Concluding...
                   </>
                 ) : (
                   <>
                     <Flag className="w-3.5 h-3.5" />
-                    CONCLUDE QUIZ
+                    Conclude Quiz
                   </>
                 )}
               </button>

@@ -7,58 +7,61 @@ export default function PlayerResult({ player, question }) {
   const totalScore = player?.score || 0;
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col justify-between p-6 max-w-sm mx-auto font-sans">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col justify-between p-4 sm:p-6 max-w-md mx-auto font-sans">
       
       {/* Top Header */}
-      <div className="text-center pb-2 font-mono text-xs text-zinc-500">
-        [ROUND_EVALUATION]
+      <div className="text-center pb-2 text-xs font-semibold text-slate-400 tracking-wider uppercase">
+        Round Evaluation
       </div>
 
-      {/* Main Feedback Banner */}
-      <div className="my-auto text-center space-y-4">
-        <div className={`w-16 h-16 mx-auto rounded-lg border flex items-center justify-center ${
-          isCorrect 
-            ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400' 
-            : 'bg-red-500/10 border-red-500/40 text-red-400'
-        }`}>
-          {isCorrect ? <Check className="w-8 h-8 stroke-[3]" /> : <X className="w-8 h-8 stroke-[3]" />}
-        </div>
-
-        <div>
-          <h1 className="text-xl font-bold text-white font-mono">
-            {isCorrect ? 'Correct Submission' : 'Incorrect Choice'}
-          </h1>
-          <p className="text-xs text-zinc-400 mt-1">
-            {isCorrect ? `Earned +${points} pts based on answer speed.` : 'Zero points awarded this round.'}
-          </p>
-        </div>
-
-        {/* Score Telemetry Card */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 font-mono">
-          <div className="flex items-center justify-between border-b border-zinc-800 pb-2 mb-2 text-xs">
-            <span className="text-zinc-500">ROUND SCORE</span>
-            <span className={isCorrect ? 'text-emerald-400 font-bold' : 'text-zinc-500'}>
-              +{points} pts
-            </span>
+      {/* Main Feedback Card */}
+      <div className="my-auto space-y-4">
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-7 shadow-sm text-center space-y-4">
+          
+          <div className={`w-16 h-16 mx-auto rounded-full border flex items-center justify-center ${
+            isCorrect 
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-600' 
+              : 'bg-red-50 border-red-200 text-red-600'
+          }`}>
+            {isCorrect ? <Check className="w-8 h-8 stroke-[2.5]" /> : <X className="w-8 h-8 stroke-[2.5]" />}
           </div>
 
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-zinc-400">TOTAL SCORE</span>
-            <span className="text-xl font-bold text-cyan-400">
-              {totalScore} <span className="text-xs text-zinc-500 font-normal">pts</span>
-            </span>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">
+              {isCorrect ? 'Correct Answer!' : 'Incorrect Choice'}
+            </h1>
+            <p className="text-xs text-slate-500 mt-1">
+              {isCorrect ? `Earned +${points} pts based on response time.` : 'No points awarded for this round.'}
+            </p>
           </div>
-        </div>
 
-        {/* Stage notice */}
-        <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-left flex items-center gap-2.5 text-xs text-zinc-300">
-          <Tv className="w-4 h-4 text-cyan-400 shrink-0" />
-          <span>Stage display is showing answer distribution and live rank standings.</span>
+          {/* Score Telemetry Card */}
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-left">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-2.5 mb-2.5 text-xs">
+              <span className="text-slate-500 font-medium">Round Score</span>
+              <span className={`font-bold ${isCorrect ? 'text-emerald-600' : 'text-slate-400'}`}>
+                +{points} pts
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-slate-600 font-medium">Total Score</span>
+              <span className="text-2xl font-bold text-[#0070ba]">
+                {totalScore} <span className="text-xs font-normal text-slate-400">pts</span>
+              </span>
+            </div>
+          </div>
+
+          {/* Stage notice */}
+          <div className="p-3.5 rounded-xl bg-blue-50/60 border border-blue-100 text-left flex items-start gap-3 text-xs text-slate-600">
+            <Tv className="w-4 h-4 text-[#0070ba] shrink-0 mt-0.5" />
+            <span className="leading-relaxed">Stage screen is currently displaying answer breakdown and updated leaderboard standings.</span>
+          </div>
         </div>
       </div>
 
-      <div className="text-center font-mono text-[11px] text-zinc-600 pb-2">
-        STAND BY FOR NEXT QUESTION
+      <div className="text-center text-xs text-slate-400 pb-2">
+        Stand by for next question
       </div>
 
     </div>
