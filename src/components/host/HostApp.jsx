@@ -14,11 +14,18 @@ import HostLeaderboard from './HostLeaderboard';
 import HostAuthGate from './HostAuthGate';
 import { RotateCcw, PlusCircle, Radio, Lock, Trash2 } from 'lucide-react';
 
-export default function HostApp() {
+export default function HostApp({ urlRoomCode = '' }) {
   const getInitialRoomCode = () => {
+    if (urlRoomCode) return urlRoomCode.toUpperCase();
     const hash = window.location.hash;
-    const match = hash.match(/host\/([A-Z0-9]+)/i);
-    return match ? match[1].toUpperCase() : localStorage.getItem('activeHostRoomCode') || null;
+    const hashMatch = hash.match(/host\/([A-Z0-9]+)/i);
+    if (hashMatch) return hashMatch[1].toUpperCase();
+
+    const path = window.location.pathname;
+    const pathMatch = path.match(/host\/([A-Z0-9]+)/i);
+    if (pathMatch) return pathMatch[1].toUpperCase();
+
+    return localStorage.getItem('activeHostRoomCode') || null;
   };
 
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -32,15 +39,23 @@ export default function HostApp() {
   const [error, setError] = useState(null);
   const [resetting, setResetting] = useState(false);
 
+  // Sync if urlRoomCode prop changes
+  useEffect(() => {
+    if (urlRoomCode && urlRoomCode.toUpperCase() !== roomCode) {
+      setRoomCode(urlRoomCode.toUpperCase());
+    }
+  }, [urlRoomCode]);
+
   const handleLockConsole = () => {
     sessionStorage.removeItem('host_auth_unlocked');
     setIsAuthenticated(false);
   };
 
   const handleQuizCreated = (newCode) => {
-    localStorage.setItem('activeHostRoomCode', newCode);
-    setRoomCode(newCode);
-    window.location.hash = `/host/${newCode}`;
+    const clean = newCode.toUpperCase();
+    localStorage.setItem('activeHostRoomCode', clean);
+    setRoomCode(clean);
+    window.location.hash = `/host/${clean}`;
   };
 
   const handleResetSession = async () => {

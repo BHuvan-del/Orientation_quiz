@@ -5,7 +5,8 @@ import { startQuestion } from '../../firebase/quizService.js';
 import { useThrottledValue } from '../../utils/throttle.js';
 
 export default function HostLobby({ session, players = [] }) {
-  const [copied, setCopied] = useState(false);
+  const [copiedStudent, setCopiedStudent] = useState(false);
+  const [copiedHost, setCopiedHost] = useState(false);
   const [starting, setStarting] = useState(false);
 
   const throttledPlayers = useThrottledValue(players, 300);
@@ -13,11 +14,18 @@ export default function HostLobby({ session, players = [] }) {
   const currentOrigin = window.location.origin;
   const currentPath = window.location.pathname;
   const joinUrl = `${currentOrigin}${currentPath}#/play/${session.roomCode}`;
+  const hostUrl = `${currentOrigin}${currentPath}#/host/${session.roomCode}`;
 
-  const copyLink = () => {
+  const copyStudentLink = () => {
     navigator.clipboard.writeText(joinUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setCopiedStudent(true);
+    setTimeout(() => setCopiedStudent(false), 2000);
+  };
+
+  const copyHostLink = () => {
+    navigator.clipboard.writeText(hostUrl);
+    setCopiedHost(true);
+    setTimeout(() => setCopiedHost(false), 2000);
   };
 
   const handleStart = async () => {
@@ -50,23 +58,40 @@ export default function HostLobby({ session, players = [] }) {
           </h1>
         </div>
 
-        {/* Room Code Card */}
-        <div className="flex items-center gap-3 bg-white border border-slate-300 rounded-xl px-5 py-2.5 shadow-sm">
-          <div>
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-              Room Code
-            </div>
-            <div className="text-3xl font-mono font-black tracking-widest text-[#003087]">
-              {session.roomCode}
+        {/* Room Code Card & Action Links */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          {/* Code badge */}
+          <div className="flex items-center gap-3 bg-white border border-slate-300 rounded-xl px-4 py-2 shadow-sm">
+            <div>
+              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                Room Code
+              </div>
+              <div className="text-2xl sm:text-3xl font-mono font-black tracking-widest text-[#003087]">
+                {session.roomCode}
+              </div>
             </div>
           </div>
-          <button
-            onClick={copyLink}
-            className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition"
-            title="Copy join link"
-          >
-            {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
-          </button>
+
+          {/* Dual copy buttons: Student link & Host console link */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={copyStudentLink}
+              className="flex-1 sm:flex-none px-3 py-2 rounded-xl bg-[#0070ba] hover:bg-[#005ea6] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow-sm"
+              title="Copy link for participants/students to join"
+            >
+              {copiedStudent ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{copiedStudent ? 'Join Link Copied!' : 'Copy Student Link'}</span>
+            </button>
+
+            <button
+              onClick={copyHostLink}
+              className="flex-1 sm:flex-none px-3 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow-sm"
+              title="Copy stage projector / host console link to open in Chrome or another device"
+            >
+              {copiedHost ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
+              <span>{copiedHost ? 'Host Link Copied!' : 'Copy Host Link'}</span>
+            </button>
+          </div>
         </div>
       </div>
 

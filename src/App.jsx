@@ -148,8 +148,10 @@ export default function App() {
 
   // Route matching:
   // 1. /host or /host/:roomCode
-  if (currentPath.startsWith('/host')) {
-    return <HostApp />;
+  const hostMatch = currentPath.match(/\/host(?:\/([A-Z0-9]+))?/i);
+  if (hostMatch) {
+    const code = hostMatch[1] ? hostMatch[1].toUpperCase() : '';
+    return <HostApp urlRoomCode={code} />;
   }
 
   // 2. /play or /play/:roomCode

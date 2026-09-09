@@ -77,8 +77,17 @@ export default function HostQuestionCreator({ onQuizCreated, onDeleteRoom }) {
   // Saved / Previous Rooms Management State
   const [savedRooms, setSavedRooms] = useState(() => getSavedHostRooms());
   const [customRoomToDelete, setCustomRoomToDelete] = useState('');
+  const [roomToOpen, setRoomToOpen] = useState('');
   const [deletingRoomCode, setDeletingRoomCode] = useState(null);
   const [deleteMessage, setDeleteMessage] = useState(null);
+
+  const handleOpenRoom = (e) => {
+    e.preventDefault();
+    const clean = roomToOpen.trim().toUpperCase();
+    if (clean) {
+      onQuizCreated(clean);
+    }
+  };
 
   const addQuestion = () => {
     setQuestions([
@@ -256,26 +265,50 @@ export default function HostQuestionCreator({ onQuizCreated, onDeleteRoom }) {
             </p>
           </div>
 
-          {/* Quick Delete by Code Form */}
-          <form onSubmit={handleCustomDelete} className="flex items-center gap-2">
-            <input
-              type="text"
-              value={customRoomToDelete}
-              onChange={(e) => setCustomRoomToDelete(e.target.value.toUpperCase())}
-              placeholder="Room Code..."
-              maxLength={6}
-              className="w-32 px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-mono uppercase focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none"
-            />
-            <button
-              type="submit"
-              disabled={!customRoomToDelete.trim() || deletingRoomCode !== null}
-              className="px-3 py-1.5 rounded-lg bg-white hover:bg-red-50 border border-red-200 text-red-600 text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs disabled:opacity-40"
-              title="Permanently delete this room by code"
-            >
-              <Trash2 className="w-3.5 h-3.5 text-red-500" />
-              <span>Delete Room</span>
-            </button>
-          </form>
+          {/* Actions: Open by Code & Quick Delete by Code */}
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Open Room by Code */}
+            <form onSubmit={handleOpenRoom} className="flex items-center gap-1.5">
+              <input
+                type="text"
+                value={roomToOpen}
+                onChange={(e) => setRoomToOpen(e.target.value.toUpperCase())}
+                placeholder="Room Code..."
+                maxLength={6}
+                className="w-28 px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-mono uppercase font-semibold focus:border-[#0070ba] focus:ring-1 focus:ring-[#0070ba] focus:outline-none"
+              />
+              <button
+                type="submit"
+                disabled={!roomToOpen.trim()}
+                className="px-3 py-1.5 rounded-lg bg-[#0070ba] hover:bg-[#005ea6] text-white text-xs font-semibold flex items-center gap-1 transition shadow-2xs disabled:opacity-40"
+                title="Open existing room lobby or live stage"
+              >
+                <span>Open Room</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </button>
+            </form>
+
+            {/* Quick Delete by Code Form */}
+            <form onSubmit={handleCustomDelete} className="flex items-center gap-1.5">
+              <input
+                type="text"
+                value={customRoomToDelete}
+                onChange={(e) => setCustomRoomToDelete(e.target.value.toUpperCase())}
+                placeholder="Code to Delete..."
+                maxLength={6}
+                className="w-28 px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-mono uppercase focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none"
+              />
+              <button
+                type="submit"
+                disabled={!customRoomToDelete.trim() || deletingRoomCode !== null}
+                className="px-3 py-1.5 rounded-lg bg-white hover:bg-red-50 border border-red-200 text-red-600 text-xs font-semibold flex items-center gap-1 transition shadow-2xs disabled:opacity-40"
+                title="Permanently delete this room by code"
+              >
+                <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                <span>Delete</span>
+              </button>
+            </form>
+          </div>
         </div>
 
         {deleteMessage && (
